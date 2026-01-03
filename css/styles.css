@@ -1,1 +1,44 @@
+:root {
+  --bg: #ffffff;
+  --text: #111;
+  --card: #f4f4f4;
+}
+
+body.dark {
+  --bg: #0d1117;
+  --text: #e6edf3;
+  --card: #161b22;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui;
+  margin: 0;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
+section {
+  margin: 1rem;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Mobile first */
+@media (min-width: 768px) {
+  main {
+    max-width: 1000px;
+    margin: auto;
+  }
+}
 
