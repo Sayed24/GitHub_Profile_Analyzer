@@ -1,12 +1,11 @@
 const toggle = document.getElementById("themeToggle");
 
-toggle.onclick = () => {
-  document.body.classList.toggle("dark");
-  localStorage.setItem("theme",
-    document.body.classList.contains("dark") ? "dark" : "light");
-};
+const savedTheme = localStorage.getItem("theme");
+if (savedTheme) document.documentElement.dataset.theme = savedTheme;
 
-if (localStorage.getItem("theme") === "dark") {
-  document.body.classList.add("dark");
-}
-
+toggle.addEventListener("click", () => {
+  const current = document.documentElement.dataset.theme;
+  const next = current === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  localStorage.setItem("theme", next);
+});
