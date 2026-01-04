@@ -3,6 +3,8 @@ const btn = document.getElementById("searchBtn");
 const loader = document.getElementById("loader");
 const errorEl = document.getElementById("error");
 const historyEl = document.getElementById("history");
+const user = await cachedFetch(`user-${username}`, () => fetchUser(username));
+const repos = await cachedFetch(`repos-${username}`, () => fetchRepos(username));
 
 btn.onclick = () => loadProfile(input.value);
 input.addEventListener("keypress", e => {
