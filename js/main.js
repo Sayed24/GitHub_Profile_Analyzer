@@ -51,3 +51,38 @@ renderHistory();
 
 const params = new URLSearchParams(window.location.search);
 if (params.get("user")) loadProfile(params.get("user"));
+
+document.getElementById("compareBtn").onclick = compareProfiles;
+
+async function compareProfiles() {
+  const a = document.getElementById("userA").value;
+  const b = document.getElementById("userB").value;
+  if (!a || !b) return;
+
+  const res = document.getElementById("compareResult");
+  res.classList.remove("hidden");
+  res.innerHTML = "Loading...";
+
+  try {
+    const [user1, user2] = await Promise.all([fetchUser(a), fetchUser(b)]);
+
+    const winner = user1.followers > user2.followers ? a : b;
+
+    res.innerHTML = `
+      ${compareCard(user1, winner)}
+      ${compareCard(user2, winner)}
+    `;
+  } catch {
+    res.innerHTML = "Comparison failed";
+  }
+}
+
+function compareCard(user, winner) {
+  return `
+    <div class="compare-card ${user.login === winner ? "winner" : ""}">
+      <h3>${user.login}</h3>
+      <p>Followers: ${user.followers}</p>
+      <p>Repos: ${user.public_repos}</p>
+    </div>
+  `;
+}
