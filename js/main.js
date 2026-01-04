@@ -86,3 +86,34 @@ function compareCard(user, winner) {
     </div>
   `;
 }
+let currentRepos = [];
+
+function updateRepoControls(repos) {
+  currentRepos = repos;
+  const langs = [...new Set(repos.map(r => r.language).filter(Boolean))];
+  const filter = document.getElementById("filterLang");
+
+  filter.innerHTML = `<option value="all">All Languages</option>` +
+    langs.map(l => `<option value="${l}">${l}</option>`).join("");
+}
+
+document.getElementById("sortRepos").onchange = applyRepoFilter;
+document.getElementById("filterLang").onchange = applyRepoFilter;
+
+function applyRepoFilter() {
+  let repos = [...currentRepos];
+
+  const sort = sortRepos.value;
+  const lang = filterLang.value;
+
+  if (lang !== "all") {
+    repos = repos.filter(r => r.language === lang);
+  }
+
+  if (sort === "stars") repos.sort((a,b)=>b.stargazers_count-a.stargazers_count);
+  if (sort === "forks") repos.sort((a,b)=>b.forks_count-a.forks_count);
+  if (sort === "updated") repos.sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
+
+  showRepos(repos);
+}
+
