@@ -1,13 +1,13 @@
-const BASE_URL = "https://api.github.com/users/";
+const API_BASE = "https://api.github.com/users";
 
-export async function fetchUser(username) {
-  const res = await fetch(`${BASE_URL}${username}`);
+async function fetchUser(username) {
+  const res = await fetch(`${API_BASE}/${username}`);
   if (!res.ok) throw new Error("User not found");
   return res.json();
 }
 
-export async function fetchRepos(username) {
-  const res = await fetch(`${BASE_URL}${username}/repos?per_page=100`);
+async function fetchRepos(username) {
+  const res = await fetch(`${API_BASE}/${username}/repos?per_page=100`);
+  if (!res.ok) throw new Error("Repos not found");
   return res.json();
 }
-
