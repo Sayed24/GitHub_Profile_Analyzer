@@ -4,33 +4,59 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>GitHub Profile Analyzer</title>
-  <link rel="stylesheet" href="css/styles.css"/>
+
+  <link rel="stylesheet" href="css/styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <header>
-    <h1>GitHub Profile Analyzer</h1>
-    <button id="themeToggle">🌙</button>
-  </header>
 
-  <main>
-    <section class="search">
-      <input id="usernameInput" placeholder="Enter GitHub username"/>
-      <button id="searchBtn">Analyze</button>
-    </section>
+<header class="header">
+  <h1>GitHub Profile Analyzer</h1>
+  <button id="themeToggle" aria-label="Toggle theme">🌙</button>
+</header>
 
-    <section id="profile"></section>
-    <section id="stats"></section>
-    <section id="chart"></section>
-    <section id="repos"></section>
-    <section id="history"></section>
-  </main>
+<main class="container">
 
-  <script src="js/theme.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/charts.js"></script>
-  <script src="js/main.js"></script>
+  <!-- Search -->
+  <section class="search-section">
+    <input type="text" id="usernameInput" placeholder="Enter GitHub username..." />
+    <button id="searchBtn">Analyze</button>
+  </section>
+
+  <!-- Search History -->
+  <section id="history" class="history"></section>
+
+  <!-- Loader -->
+  <div id="loader" class="loader hidden"></div>
+
+  <!-- Error -->
+  <p id="error" class="error hidden"></p>
+
+  <!-- Profile -->
+  <section id="profile" class="card hidden"></section>
+
+  <!-- Stats -->
+  <section id="stats" class="stats hidden"></section>
+
+  <!-- Language Chart -->
+  <section class="card hidden" id="chartCard">
+    <h3>Language Usage</h3>
+    <canvas id="languageChart"></canvas>
+  </section>
+
+  <!-- Repositories -->
+  <section id="repos" class="repos hidden"></section>
+
+</main>
+
+<footer class="footer">
+  Built with GitHub API • Portfolio Project
+</footer>
+
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>
-
