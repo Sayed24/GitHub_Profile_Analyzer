@@ -126,3 +126,27 @@ body {
     flex-direction: column;
   }
 }
+.compare-inputs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.compare-card {
+  padding: 1rem;
+  border-radius: 12px;
+  background: var(--card);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.winner {
+  border: 2px solid var(--accent);
+}
+
