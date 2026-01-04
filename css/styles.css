@@ -149,4 +149,23 @@ body {
 .winner {
   border: 2px solid var(--accent);
 }
+.card, .repo, .compare-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
 
+.card:hover,
+.repo:hover,
+.compare-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+}
+
+button {
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+input {
+  border-radius: 10px;
+  border: 1px solid var(--muted);
+}
