@@ -25,6 +25,9 @@ function showStats(user, repos) {
     <div class="stat">Stars<br><strong>${stars}</strong></div>
   `;
   statsEl.classList.remove("hidden");
+  statsEl.querySelectorAll("strong").forEach(el => {
+  animateValue(el, 0, Number(el.textContent));
+});
 }
 
 function showRepos(repos) {
