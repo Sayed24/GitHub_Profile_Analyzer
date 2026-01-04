@@ -48,3 +48,16 @@ function exportPDF() {
   pdf.text(document.getElementById("profile").innerText, 10, 20);
   pdf.save("github-profile.pdf");
 }
+function animateValue(el, start, end, duration = 800) {
+  let startTime = null;
+
+  function step(timestamp) {
+    if (!startTime) startTime = timestamp;
+    const progress = Math.min((timestamp - startTime) / duration, 1);
+    el.textContent = Math.floor(progress * (end - start) + start);
+    if (progress < 1) requestAnimationFrame(step);
+  }
+
+  requestAnimationFrame(step);
+}
+
