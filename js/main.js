@@ -18,6 +18,7 @@ async function loadProfile(username) {
   try {
     const user = await fetchUser(username);
     const repos = await fetchRepos(username);
+    updateRepoControls(repos);
 
     showProfile(user);
     showStats(user, repos);
