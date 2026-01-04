@@ -3,7 +3,7 @@
 Analyze any GitHub profile with real-time data and beautiful visualizations.
 
 ## 🔗 Live Demo
-https://sayed24.github.io/github-profile-analyzer/
+https://sayed24.github.io/github_profile_analyzer/
 
 ## ✨ Features
 - GitHub user search
