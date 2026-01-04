@@ -11,3 +11,10 @@ async function fetchRepos(username) {
   if (!res.ok) throw new Error("Repos not found");
   return res.json();
 }
+
+function checkRateLimit(headers) {
+  const remaining = headers.get("X-RateLimit-Remaining");
+  if (remaining === "0") {
+    throw new Error("GitHub API rate limit reached. Try later.");
+  }
+}
