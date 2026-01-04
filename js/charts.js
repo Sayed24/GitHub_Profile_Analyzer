@@ -1,16 +1,15 @@
 let chart;
 
-export function renderLanguageChart(repos) {
+function renderLanguageChart(repos) {
   const languages = {};
-  repos.forEach(r => {
-    if (r.language) {
-      languages[r.language] = (languages[r.language] || 0) + 1;
+
+  repos.forEach(repo => {
+    if (repo.language) {
+      languages[repo.language] = (languages[repo.language] || 0) + 1;
     }
   });
 
-  const ctx = document.createElement("canvas");
-  document.getElementById("chart").innerHTML = "";
-  document.getElementById("chart").appendChild(ctx);
+  const ctx = document.getElementById("languageChart");
 
   if (chart) chart.destroy();
 
@@ -23,5 +22,6 @@ export function renderLanguageChart(repos) {
       }]
     }
   });
-}
 
+  document.getElementById("chartCard").classList.remove("hidden");
+}
