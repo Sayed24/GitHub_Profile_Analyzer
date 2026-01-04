@@ -1,22 +1,41 @@
-export function renderProfile(user) {
-  document.getElementById("profile").innerHTML = `
+const profileEl = document.getElementById("profile");
+const statsEl = document.getElementById("stats");
+const reposEl = document.getElementById("repos");
+
+function showProfile(user) {
+  profileEl.innerHTML = `
     <div class="card">
-      <img src="${user.avatar_url}" width="80"/>
+      <img src="${user.avatar_url}" width="100" style="border-radius:50%" />
       <h2>${user.name || ""}</h2>
       <p>@${user.login}</p>
       <p>${user.bio || ""}</p>
+      <a href="${user.html_url}" target="_blank">View GitHub</a>
     </div>
   `;
+  profileEl.classList.remove("hidden");
 }
 
-export function renderRepos(repos) {
-  const recent = repos.slice(0, 5);
-  document.getElementById("repos").innerHTML = recent.map(repo => `
-    <div class="card">
-      <h3>${repo.name}</h3>
-      <p>${repo.description || ""}</p>
-      ⭐ ${repo.stargazers_count}
-    </div>
-  `).join("");
+function showStats(user, repos) {
+  const stars = repos.reduce((a, r) => a + r.stargazers_count, 0);
+  statsEl.innerHTML = `
+    <div class="stat">Repos<br><strong>${user.public_repos}</strong></div>
+    <div class="stat">Followers<br><strong>${user.followers}</strong></div>
+    <div class="stat">Following<br><strong>${user.following}</strong></div>
+    <div class="stat">Stars<br><strong>${stars}</strong></div>
+  `;
+  statsEl.classList.remove("hidden");
 }
 
+function showRepos(repos) {
+  reposEl.innerHTML = repos
+    .sort((a,b) => b.stargazers_count - a.stargazers_count)
+    .slice(0, 6)
+    .map(repo => `
+      <div class="repo">
+        <h4>${repo.name}</h4>
+        <p>${repo.description || ""}</p>
+        ⭐ ${repo.stargazers_count} • 🍴 ${repo.forks_count}
+      </div>
+    `).join("");
+  reposEl.classList.remove("hidden");
+}
