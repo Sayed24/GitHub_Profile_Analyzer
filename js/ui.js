@@ -39,3 +39,11 @@ function showRepos(repos) {
     `).join("");
   reposEl.classList.remove("hidden");
 }
+function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+
+  pdf.text("GitHub Profile Report", 10, 10);
+  pdf.text(document.getElementById("profile").innerText, 10, 20);
+  pdf.save("github-profile.pdf");
+}
