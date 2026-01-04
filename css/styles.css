@@ -169,3 +169,9 @@ input {
   border-radius: 10px;
   border: 1px solid var(--muted);
 }
+
+.repo-controls {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
