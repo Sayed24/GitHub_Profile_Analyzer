@@ -1,4 +1,6 @@
 const API_BASE = "https://api.github.com/users";
+const res = await fetch(url);
+checkRateLimit(res.headers);
 
 async function fetchUser(username) {
   const res = await fetch(`${API_BASE}/${username}`);
