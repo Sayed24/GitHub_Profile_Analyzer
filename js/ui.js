@@ -10,6 +10,7 @@ function showProfile(user) {
       <p>@${user.login}</p>
       <p>${user.bio || ""}</p>
       <a href="${user.html_url}" target="_blank">View GitHub</a>
+      <button onclick="exportPDF()">Export PDF</button>
     </div>
   `;
   profileEl.classList.remove("hidden");
