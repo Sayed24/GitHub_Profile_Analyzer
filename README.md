@@ -1,6 +1,3 @@
-
-https://github.com/Sayed24/GitHub_Profile_Analyzer/tree/main
-
 # GitHub Profile Analyzer 🔍
 
 A modern, responsive web application that analyzes GitHub profiles using real-time data from the GitHub REST API.  
