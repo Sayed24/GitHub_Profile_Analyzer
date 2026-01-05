@@ -1,81 +1,74 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GitHub Profile Analyzer</title>
+  <meta charset="utf-8" />
+  <title>GitHub Analytics Pro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#2563eb">
+  <!-- SEO -->
+  <meta name="description" content="Advanced GitHub profile analytics with real insights, charts, offline mode, and comparison." />
 
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0d1117" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-  <link rel="stylesheet" href="css/styles.css" />
 </head>
-<body>
 
-<header class="header">
-  <h1>GitHub Profile Analyzer</h1>
-  <button id="themeToggle">🌙</button>
+<body>
+<header class="topbar">
+  <h1>GitHub Analytics <span>Pro</span></h1>
 </header>
 
-<section class="search-section">
-  <form id="searchForm">
-    <input id="usernameInput" placeholder="GitHub username" required />
-    <button type="submit">Analyze</button>
-  </form>
-  <div id="history" class="history"></div>
-  <div id="error" class="error"></div>
-</section>
+<main class="container">
 
-<div id="loader" class="loader">Loading...</div>
+  <!-- SEARCH -->
+  <section class="card">
+    <input id="usernameInput" type="text" placeholder="Enter GitHub username" />
+    <button id="searchBtn">Analyze</button>
+  </section>
 
-<main id="content">
+  <!-- PROFILE -->
+  <section id="profile" class="card hidden"></section>
 
-  <section id="profile" class="card"></section>
-  <section id="stats" class="stats-grid"></section>
+  <!-- STATS -->
+  <section id="stats" class="stats-grid hidden"></section>
 
-  <section class="charts">
+  <!-- CHARTS -->
+  <section class="grid-2 hidden" id="chartsSection">
     <div class="card">
-      <h3>Languages</h3>
       <canvas id="languageChart"></canvas>
     </div>
     <div class="card">
-      <h3>Top Starred Repos</h3>
       <canvas id="starsChart"></canvas>
     </div>
   </section>
 
-  <section id="repos" class="repos-grid"></section>
+  <!-- CONTRIBUTIONS -->
+  <section id="contributions" class="card hidden"></section>
 
-  <section id="contributions" class="card"></section>
-
-  <section id="aiInsights" class="card"></section>
-
-  <section class="card">
-    <button onclick="exportPDF()">Export PDF</button>
-  </section>
-
-  <section class="card">
-    <h2>Compare Profiles</h2>
-    <input id="compareUser1" placeholder="Username 1" />
-    <input id="compareUser2" placeholder="Username 2" />
-    <button onclick="compareUsers(compareUser1.value, compareUser2.value)">
-      Compare
-    </button>
-  </section>
-
-  <section id="comparison"></section>
+  <!-- AI INSIGHTS -->
+  <section id="aiInsights" class="card hidden"></section>
 
 </main>
+
+<footer>
+  <a href="compare.html">Compare Two Users</a>
+</footer>
 
 <script src="js/api.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/charts.js"></script>
-<script src="js/theme.js"></script>
-<script src="js/main.js"></script>
-<script src="js/compare.js"></script>
+<script src="js/app.js"></script>
 
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js");
+  }
+</script>
 </body>
 </html>
