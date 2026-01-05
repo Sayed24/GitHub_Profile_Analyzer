@@ -198,3 +198,24 @@ main {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+.compare-form {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.compare-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.compare-grid img {
+  width: 70px;
+  border-radius: 50%;
+}
+
+@media (min-width: 768px) {
+  .compare-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
