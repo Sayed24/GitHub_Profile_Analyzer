@@ -10,6 +10,7 @@ function getHeaders() {
     ? { Authorization: `token ${GITHUB_TOKEN}` }
     : {};
 }
+fetch(url, { headers: getHeaders() })
 
 /* =========================
    RATE LIMIT CHECK
