@@ -1,27 +1,27 @@
-/* =====================
+/* =========================
    CSS VARIABLES
-===================== */
+========================= */
 :root {
-  --bg: #f4f6f8;
+  --bg: #f5f7fa;
   --card: #ffffff;
-  --text: #0f172a;
+  --text: #1f2937;
   --muted: #6b7280;
-  --accent: #2563eb;
-  --shadow: rgba(0, 0, 0, 0.08);
+  --primary: #2563eb;
+  --border: #e5e7eb;
 }
 
 [data-theme="dark"] {
   --bg: #0f172a;
-  --card: #111827;
+  --card: #1e293b;
   --text: #e5e7eb;
-  --muted: #9ca3af;
-  --accent: #38bdf8;
-  --shadow: rgba(0, 0, 0, 0.4);
+  --muted: #94a3b8;
+  --primary: #60a5fa;
+  --border: #334155;
 }
 
-/* =====================
+/* =========================
    GLOBAL
-===================== */
+========================= */
 * {
   box-sizing: border-box;
 }
@@ -31,231 +31,170 @@ body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg);
   color: var(--text);
-}
-
-h1, h2, h3, h4 {
-  margin-top: 0;
-}
-
-.hidden {
-  display: none !important;
-}
-
-/* =====================
-   HEADER
-===================== */
-.header {
-  background: var(--card);
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 4px 10px var(--shadow);
-}
-
-#themeToggle {
-  background: none;
-  border: none;
-  font-size: 1.4rem;
-  cursor: pointer;
-}
-
-/* =====================
-   LAYOUT
-===================== */
-.container {
-  max-width: 1100px;
-  margin: auto;
-  padding: 1rem;
-}
-
-/* =====================
-   CARDS
-===================== */
-.card {
-  background: var(--card);
-  padding: 1rem;
-  border-radius: 14px;
-  box-shadow: 0 12px 30px var(--shadow);
-  margin-bottom: 1rem;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px var(--shadow);
-}
-
-/* Glassmorphism */
-.glass {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-}
-
-[data-theme="dark"] .glass {
-  background: rgba(17, 24, 39, 0.75);
-  border-color: rgba(255, 255, 255, 0.08);
-}
-
-/* =====================
-   SEARCH
-===================== */
-.search-section {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.search-section input {
-  flex: 1;
-}
-
-/* =====================
-   INPUTS & BUTTONS
-===================== */
-input, select, button {
-  padding: 0.7rem 0.9rem;
-  border-radius: 10px;
-  border: 1px solid var(--muted);
-  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
 button {
-  background: var(--accent);
-  color: white;
-  border: none;
   cursor: pointer;
-  font-weight: 600;
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
 }
 
 button:hover {
   opacity: 0.9;
 }
 
-/* =====================
-   HISTORY
-===================== */
+input {
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  width: 100%;
+}
+
+/* =========================
+   HEADER
+========================= */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+}
+
+/* =========================
+   SEARCH
+========================= */
+.search-section {
+  padding: 1rem;
+}
+
+.search-section form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.history {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
 .history button {
-  margin: 0.3rem 0.3rem 0 0;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
 }
 
-/* =====================
-   LOADER
-===================== */
+/* =========================
+   ERROR & LOADER
+========================= */
+.error {
+  color: #ef4444;
+  margin-top: 0.5rem;
+}
+
 .loader {
-  width: 42px;
-  height: 42px;
-  border: 4px solid var(--muted);
-  border-top: 4px solid var(--accent);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 1.5rem auto;
+  text-align: center;
+  padding: 1rem;
+  display: none;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+/* =========================
+   LAYOUT
+========================= */
+main {
+  padding: 1rem;
 }
 
-/* =====================
+.card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  margin-bottom: 1rem;
+}
+
+/* =========================
    PROFILE
-===================== */
-#profile img {
-  border-radius: 50%;
-  margin-bottom: 0.5rem;
+========================= */
+.profile {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 
-/* =====================
+.profile img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+
+/* =========================
    STATS
-===================== */
-.stats {
+========================= */
+.stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 1rem;
 }
 
 .stat {
-  background: var(--card);
-  padding: 1rem;
-  border-radius: 12px;
   text-align: center;
-  box-shadow: 0 10px 25px var(--shadow);
 }
 
-/* =====================
-   REPO CONTROLS
-===================== */
-.repo-controls {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
+.stat strong {
+  display: block;
+  font-size: 1.2rem;
 }
 
-/* =====================
-   REPOS
-===================== */
-.repos {
+/* =========================
+   CHARTS
+========================= */
+.charts {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+/* =========================
+   REPOS
+========================= */
+.repos-grid {
+  display: grid;
   gap: 1rem;
 }
 
 .repo {
-  background: var(--card);
-  padding: 1rem;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px var(--shadow);
-}
-
-/* =====================
-   COMPARE
-===================== */
-.compare-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1rem;
-}
-
-.compare-card {
-  padding: 1rem;
-  border-radius: 12px;
-  background: var(--card);
-  box-shadow: 0 10px 25px var(--shadow);
-}
-
-.winner {
-  border: 2px solid var(--accent);
-}
-
-/* =====================
-   FOOTER
-===================== */
-.footer {
-  text-align: center;
-  padding: 1rem;
-  color: var(--muted);
-}
-
-/* =====================
-   SKELETON LOADERS
-===================== */
-.skeleton {
-  height: 20px;
+  border: 1px solid var(--border);
+  padding: 0.8rem;
   border-radius: 10px;
-  margin-bottom: 10px;
-  background: linear-gradient(90deg, #e5e7eb, #f3f4f6, #e5e7eb);
-  background-size: 200% 100%;
-  animation: skeleton 1.5s infinite;
 }
 
-@keyframes skeleton {
-  to { background-position: -200% 0; }
+.repo h4 {
+  margin: 0;
 }
 
-/* =====================
-   MOBILE
-===================== */
-@media (max-width: 640px) {
-  .search-section {
-    flex-direction: column;
+/* =========================
+   RESPONSIVE
+========================= */
+@media (min-width: 768px) {
+  .charts {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .repos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .repos-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
