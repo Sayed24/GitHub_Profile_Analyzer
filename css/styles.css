@@ -1,253 +1,293 @@
 /* =========================
-   CSS VARIABLES
-========================= */
+   GitHub Analytics Pro
+   Global Styles (Mobile-First)
+   ========================= */
+
 :root {
-  --bg: #f5f7fa;
-  --card: #ffffff;
-  --text: #1f2937;
-  --muted: #6b7280;
-  --primary: #2563eb;
-  --border: #e5e7eb;
+  --bg: #0d1117;
+  --card: #161b22;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --accent: #3b82f6;
+  --accent-2: #8b5cf6;
+  --border: #30363d;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
 }
 
-[data-theme="dark"] {
-  --bg: #0f172a;
-  --card: #1e293b;
-  --text: #e5e7eb;
-  --muted: #94a3b8;
-  --primary: #60a5fa;
-  --border: #334155;
-}
-
-/* =========================
-   GLOBAL
-========================= */
-* {
+/* Reset */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-body {
+html, body {
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  padding: 0;
   background: var(--bg);
   color: var(--text);
-  line-height: 1.6;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+               Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* =========================
+   Layout
+   ========================= */
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 1rem;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.grid-2 {
+  display: grid;
+  gap: 1rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+/* =========================
+   Header
+   ========================= */
+
+.topbar {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.topbar span {
+  font-weight: 700;
+}
+
+/* =========================
+   Cards
+   ========================= */
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 1rem;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  animation: fadeUp .35s ease both;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 40px rgba(0,0,0,.45);
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================
+   Inputs & Buttons
+   ========================= */
+
+input {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #0b1220;
+  color: var(--text);
+  outline: none;
+  margin-bottom: 0.75rem;
+}
+
+input::placeholder {
+  color: var(--muted);
 }
 
 button {
-  cursor: pointer;
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 10px;
   border: none;
-  background: var(--primary);
-  color: #fff;
-  border-radius: 8px;
-  padding: 0.6rem 1rem;
-  font-size: 0.9rem;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .1s ease, opacity .1s ease;
 }
 
 button:hover {
   opacity: 0.9;
 }
 
-input {
-  padding: 0.6rem;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  width: 100%;
+button:active {
+  transform: scale(0.97);
 }
 
 /* =========================
-   HEADER
-========================= */
-.header {
+   Profile Section
+   ========================= */
+
+#profile {
   display: flex;
-  justify-content: space-between;
+  gap: 1rem;
   align-items: center;
-  padding: 1rem;
-  background: var(--card);
-  border-bottom: 1px solid var(--border);
-}
-
-/* =========================
-   SEARCH
-========================= */
-.search-section {
-  padding: 1rem;
-}
-
-.search-section form {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.history {
-  display: flex;
-  gap: 0.5rem;
   flex-wrap: wrap;
-  margin-top: 0.5rem;
 }
 
-.history button {
-  background: var(--card);
-  color: var(--text);
-  border: 1px solid var(--border);
-}
-
-/* =========================
-   ERROR & LOADER
-========================= */
-.error {
-  color: #ef4444;
-  margin-top: 0.5rem;
-}
-
-.loader {
-  text-align: center;
-  padding: 1rem;
-  display: none;
-}
-
-/* =========================
-   LAYOUT
-========================= */
-main {
-  padding: 1rem;
-}
-
-.card {
-  background: var(--card);
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
-  margin-bottom: 1rem;
-}
-
-/* =========================
-   PROFILE
-========================= */
-.profile {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-
-.profile img {
-  width: 80px;
-  height: 80px;
+#profile img {
+  width: 88px;
+  height: 88px;
   border-radius: 50%;
+  border: 2px solid var(--border);
+}
+
+.profile-meta {
+  flex: 1;
+}
+
+.profile-meta h2 {
+  margin: 0 0 .25rem;
+}
+
+.profile-meta p {
+  margin: .15rem 0;
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+.profile-meta a {
+  color: var(--accent);
+  text-decoration: none;
 }
 
 /* =========================
-   STATS
-========================= */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 1rem;
-}
+   Stats
+   ========================= */
 
 .stat {
   text-align: center;
 }
 
-.stat strong {
-  display: block;
-  font-size: 1.2rem;
-}
-
-/* =========================
-   CHARTS
-========================= */
-.charts {
-  display: grid;
-  gap: 1rem;
-}
-
-/* =========================
-   REPOS
-========================= */
-.repos-grid {
-  display: grid;
-  gap: 1rem;
-}
-
-.repo {
-  border: 1px solid var(--border);
-  padding: 0.8rem;
-  border-radius: 10px;
-}
-
-.repo h4 {
+.stat h3 {
   margin: 0;
+  font-size: 1.6rem;
+}
+
+.stat span {
+  font-size: .75rem;
+  color: var(--muted);
 }
 
 /* =========================
-   RESPONSIVE
-========================= */
-@media (min-width: 768px) {
-  .charts {
-    grid-template-columns: 1fr 1fr;
-  }
+   Charts
+   ========================= */
 
-  .repos-grid {
+canvas {
+  width: 100% !important;
+  height: auto !important;
+}
+
+/* =========================
+   Contributions
+   ========================= */
+
+#contributions h3 {
+  margin-top: 0;
+}
+
+.contribution-grid {
+  display: grid;
+  grid-template-columns: repeat(14, 1fr);
+  gap: 4px;
+  margin-top: 0.75rem;
+}
+
+.contribution-cell {
+  width: 100%;
+  padding-bottom: 100%;
+  background: #1f2933;
+  border-radius: 3px;
+}
+
+.contribution-cell.active {
+  background: var(--success);
+}
+
+/* =========================
+   AI Insights
+   ========================= */
+
+#aiInsights ul {
+  padding-left: 1rem;
+}
+
+#aiInsights li {
+  margin-bottom: .4rem;
+}
+
+/* =========================
+   Footer
+   ========================= */
+
+footer {
+  text-align: center;
+  padding: 1.5rem;
+  font-size: .85rem;
+}
+
+footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* =========================
+   Responsive Enhancements
+   ========================= */
+
+@media (min-width: 640px) {
+  .grid-2 {
     grid-template-columns: repeat(2, 1fr);
   }
-}
 
-@media (min-width: 1024px) {
-  .repos-grid {
-    grid-template-columns: repeat(3, 1fr);
+  button {
+    width: auto;
+    padding: .75rem 1.5rem;
+  }
+
+  input {
+    margin-bottom: 0;
+  }
+
+  .card input,
+  .card button {
+    display: inline-block;
+    vertical-align: middle;
   }
 }
-.compare-form {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.compare-grid {
-  display: grid;
-  gap: 1rem;
-}
-
-.compare-grid img {
-  width: 70px;
-  border-radius: 50%;
-}
-
-@media (min-width: 768px) {
-  .compare-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-.card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-}
-.header h1 {
-  background: linear-gradient(90deg, #2563eb, #7c3aed);
-  -webkit-background-clip: text;
-  color: transparent;
-}
-button:active {
-  transform: scale(0.97);
-}
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    #e5e7eb 25%,
-    #f3f4f6 37%,
-    #e5e7eb 63%
-  );
-  background-size: 400% 100%;
-  animation: shimmer 1.4s infinite;
-}
-
-@keyframes shimmer {
-  0% { background-position: 100% 0; }
-  100% { background-position: -100% 0; }
-}
-
