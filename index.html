@@ -1,85 +1,95 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>GitHub Profile Analyzer</title>
 
   <link rel="stylesheet" href="css/styles.css" />
+
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
 <header class="header">
   <h1>GitHub Profile Analyzer</h1>
-  <button id="themeToggle" aria-label="Toggle theme">🌙</button>
+  <button id="themeToggle">🌙</button>
 </header>
 
 <main class="container">
 
-  <!-- Search -->
-  <section class="search-section">
-    <input type="text" id="usernameInput" placeholder="Enter GitHub username..." />
+  <!-- SEARCH -->
+  <section class="search-section card glass">
+    <input id="usernameInput" placeholder="Enter GitHub username">
     <button id="searchBtn">Analyze</button>
   </section>
 
-  <section class="compare-section card">
-  <h3>Compare Profiles</h3>
-  <div class="compare-inputs">
-    <input type="text" id="userA" placeholder="First username">
-    <input type="text" id="userB" placeholder="Second username">
-    <button id="compareBtn">Compare</button>
-  </div>
-</section>
-
-<section id="compareResult" class="compare-grid hidden"></section>
-
-  <!-- Search History -->
+  <!-- HISTORY -->
   <section id="history" class="history"></section>
 
-  <!-- Loader -->
+  <!-- LOADER -->
   <div id="loader" class="loader hidden"></div>
-
-  <!-- Error -->
   <p id="error" class="error hidden"></p>
 
-  <!-- Profile -->
-  <section id="profile" class="card hidden"></section>
+  <!-- PROFILE -->
+  <section id="profile" class="hidden"></section>
 
-  <!-- Stats -->
+  <!-- STATS -->
   <section id="stats" class="stats hidden"></section>
 
-  <!-- Language Chart -->
-  <section class="card hidden" id="chartCard">
+  <!-- REPO CONTROLS -->
+  <section class="card repo-controls hidden" id="repoControls">
+    <select id="sortRepos">
+      <option value="stars">Sort by Stars</option>
+      <option value="forks">Sort by Forks</option>
+      <option value="updated">Last Updated</option>
+    </select>
+
+    <select id="filterLang">
+      <option value="all">All Languages</option>
+    </select>
+  </section>
+
+  <!-- CHART -->
+  <section id="chartCard" class="card hidden">
     <h3>Language Usage</h3>
     <canvas id="languageChart"></canvas>
   </section>
 
-  <div class="card repo-controls">
-  <select id="sortRepos">
-    <option value="stars">Sort by Stars</option>
-    <option value="forks">Sort by Forks</option>
-    <option value="updated">Last Updated</option>
-  </select>
-
-  <select id="filterLang">
-    <option value="all">All Languages</option>
-  </select>
-</div>
-
-  <!-- Repositories -->
+  <!-- REPOS -->
   <section id="repos" class="repos hidden"></section>
+
+  <!-- COMPARE -->
+  <section class="card glass">
+    <h3>Compare Profiles</h3>
+    <input id="userA" placeholder="First username">
+    <input id="userB" placeholder="Second username">
+    <button id="compareBtn">Compare</button>
+  </section>
+
+  <section id="compareResult" class="compare-grid hidden"></section>
+
+  <section id="compareChartCard" class="card hidden">
+    <h3>Language Comparison</h3>
+    <canvas id="compareChart"></canvas>
+  </section>
 
 </main>
 
 <footer class="footer">
-  Built with GitHub API • Portfolio Project
+  Portfolio Project • GitHub API
 </footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- JS FILES (ORDER MATTERS) -->
 <script src="js/api.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/charts.js"></script>
 <script src="js/theme.js"></script>
 <script src="js/main.js"></script>
+
 </body>
 </html>
