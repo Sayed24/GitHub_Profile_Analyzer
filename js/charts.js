@@ -1,78 +1,78 @@
 /* =========================
-   CHART REFERENCES
-========================= */
-let languageChart = null;
-let starsChart = null;
+   Charts Rendering
+   ========================= */
 
-/* =========================
-   LANGUAGE DATA
-========================= */
-function getLanguageStats(repos) {
-  const stats = {};
-  repos.forEach(repo => {
-    if (!repo.language) return;
-    stats[repo.language] = (stats[repo.language] || 0) + 1;
-  });
-  return stats;
+let languageChartInstance = null;
+let starsChartInstance = null;
+
+/* ---------- Helpers ---------- */
+
+function destroyChart(chart) {
+  if (chart) {
+    chart.destroy();
+  }
 }
 
-/* =========================
-   STARS DATA
-========================= */
-function getStarsStats(repos) {
-  return repos
-    .sort((a, b) => b.stargazers_count - a.stargazers_count)
-    .slice(0, 10);
-}
+/* ---------- Language Usage Chart ---------- */
 
-/* =========================
-   LANGUAGE CHART
-========================= */
-function renderLanguageChart(repos) {
-  const ctx = document.getElementById("languageChart");
-  if (!ctx) return;
+function renderLanguageChart(languageMap) {
+  const ctx = document
+    .getElementById("languageChart")
+    .getContext("2d");
 
-  if (languageChart) languageChart.destroy();
+  const labels = Object.keys(languageMap);
+  const data = Object.values(languageMap);
 
-  const data = getLanguageStats(repos);
+  destroyChart(languageChartInstance);
 
-  languageChart = new Chart(ctx, {
+  languageChartInstance = new Chart(ctx, {
     type: "doughnut",
     data: {
-      labels: Object.keys(data),
+      labels,
       datasets: [
         {
-          data: Object.values(data)
+          data,
+          borderWidth: 1
         }
       ]
     },
     options: {
       responsive: true,
       plugins: {
-        legend: { position: "bottom" }
+        legend: {
+          position: "bottom",
+          labels: {
+            color: "#e6edf3"
+          }
+        }
       }
     }
   });
 }
 
-/* =========================
-   STARS CHART
-========================= */
+/* ---------- Stars Distribution ---------- */
+
 function renderStarsChart(repos) {
-  const ctx = document.getElementById("starsChart");
-  if (!ctx) return;
+  const ctx = document
+    .getElementById("starsChart")
+    .getContext("2d");
 
-  if (starsChart) starsChart.destroy();
+  const topRepos = [...repos]
+    .sort((a, b) => b.stargazers_count - a.stargazers_count)
+    .slice(0, 5);
 
-  const topRepos = getStarsStats(repos);
+  const labels = topRepos.map(r => r.name);
+  const data = topRepos.map(r => r.stargazers_count);
 
-  starsChart = new Chart(ctx, {
+  destroyChart(starsChartInstance);
+
+  starsChartInstance = new Chart(ctx, {
     type: "bar",
     data: {
-      labels: topRepos.map(r => r.name),
+      labels,
       datasets: [
         {
-          data: topRepos.map(r => r.stargazers_count)
+          data
         }
       ]
     },
@@ -80,6 +80,14 @@ function renderStarsChart(repos) {
       responsive: true,
       plugins: {
         legend: { display: false }
+      },
+      scales: {
+        x: {
+          ticks: { color: "#e6edf3" }
+        },
+        y: {
+          ticks: { color: "#e6edf3" }
+        }
       }
     }
   });
