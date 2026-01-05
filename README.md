@@ -65,6 +65,21 @@ https://github.com/Sayed24/GitHub_Profile_Analyzer/tree/main
 ---
 
 ## 📁 Project Structure
+github_profile_analyzer/
+│
+├── index.html
+├── css/
+│   └── styles.css
+│
+├── js/
+│   ├── api.js
+│   ├── ui.js
+│   ├── charts.js
+│   ├── theme.js
+│   ├── main.js
+│   └── compare.js
+│
+└── README.md
 
 ---
 
