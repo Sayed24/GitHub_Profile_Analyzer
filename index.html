@@ -1,74 +1,116 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>GitHub Analytics Pro</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Your Name | Frontend Developer</title>
 
-  <!-- SEO -->
-  <meta name="description" content="Advanced GitHub profile analytics with real insights, charts, offline mode, and comparison." />
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#0d1117" />
+<!-- CSS -->
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/dark.css">
+<link rel="stylesheet" href="css/animations.css">
 
-  <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css" />
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- JS -->
+<script defer src="js/data.js"></script>
+<script defer src="js/main.js"></script>
 </head>
-
 <body>
-<header class="topbar">
-  <h1>GitHub Analytics <span>Pro</span></h1>
+
+<!-- ================= NAVBAR ================= -->
+<header class="header">
+  <nav class="nav container">
+    <h1 class="logo">YourName</h1>
+
+    <!-- Hamburger menu for mobile -->
+    <div class="hamburger" id="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="resume.pdf" download class="btn secondary">Resume</a></li>
+    </ul>
+
+    <!-- Dark Mode Toggle -->
+    <button id="theme-toggle" aria-label="Toggle Dark Mode">🌙</button>
+  </nav>
 </header>
 
-<main class="container">
-
-  <!-- SEARCH -->
-  <section class="card">
-    <input id="usernameInput" type="text" placeholder="Enter GitHub username" />
-    <button id="searchBtn">Analyze</button>
-  </section>
-
-  <!-- PROFILE -->
-  <section id="profile" class="card hidden"></section>
-
-  <!-- STATS -->
-  <section id="stats" class="stats-grid hidden"></section>
-
-  <!-- CHARTS -->
-  <section class="grid-2 hidden" id="chartsSection">
-    <div class="card">
-      <canvas id="languageChart"></canvas>
+<!-- ================= HERO ================= -->
+<main id="home">
+  <section class="hero container fade-in">
+    <div class="hero-content">
+      <h2>Hi, I’m <span>Your Name</span></h2>
+      <p>Frontend Developer focused on building clean, responsive, and user-friendly web experiences.</p>
+      <div class="hero-buttons">
+        <a href="#projects" class="btn primary">View Projects</a>
+        <a href="https://github.com/yourusername" target="_blank" class="btn secondary">GitHub</a>
+      </div>
     </div>
-    <div class="card">
-      <canvas id="starsChart"></canvas>
+    <div class="hero-image">
+      <img src="assets/images/profile.png" alt="Your profile photo">
     </div>
   </section>
-
-  <!-- CONTRIBUTIONS -->
-  <section id="contributions" class="card hidden"></section>
-
-  <!-- AI INSIGHTS -->
-  <section id="aiInsights" class="card hidden"></section>
-
 </main>
 
-<footer>
-  <a href="compare.html">Compare Two Users</a>
+<!-- ================= PROJECTS ================= -->
+<section id="projects" class="projects container fade-in">
+  <h2 class="section-title">Projects</h2>
+
+  <!-- Filter buttons -->
+  <div class="filter-buttons">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="HTML">HTML</button>
+    <button class="filter-btn" data-filter="CSS">CSS</button>
+    <button class="filter-btn" data-filter="JavaScript">JS</button>
+  </div>
+
+  <div id="projects-grid" class="projects-grid"></div>
+</section>
+
+<!-- ================= SKILLS ================= -->
+<section id="skills" class="skills container fade-in">
+  <h2 class="section-title">Skills</h2>
+  <div class="skills-grid">
+    <div class="skill-card">HTML</div>
+    <div class="skill-card">CSS</div>
+    <div class="skill-card">JavaScript</div>
+    <div class="skill-card">Git & GitHub</div>
+    <div class="skill-card">Responsive Design</div>
+    <div class="skill-card">UI / UX</div>
+  </div>
+</section>
+
+<!-- ================= ABOUT ================= -->
+<section id="about" class="about container fade-in">
+  <h2 class="section-title">About Me</h2>
+  <p>I’m a passionate frontend developer who enjoys turning ideas into real, interactive websites. I focus on clean code, responsive layouts, and modern UI/UX design.</p>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section id="contact" class="contact container fade-in">
+  <h2 class="section-title">Contact</h2>
+  <p>Feel free to reach out if you’d like to work together or just say hi!</p>
+  <div class="contact-links">
+    <a href="mailto:youremail@example.com">Email</a>
+    <a href="https://github.com/yourusername" target="_blank">GitHub</a>
+    <a href="https://linkedin.com/in/yourusername" target="_blank">LinkedIn</a>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer fade-in">
+  <p>© 2026 Your Name. All rights reserved.</p>
 </footer>
 
-<script src="js/api.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/charts.js"></script>
-<script src="js/app.js"></script>
-
-<script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js");
-  }
-</script>
 </body>
 </html>
