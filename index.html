@@ -5,89 +5,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GitHub Profile Analyzer</title>
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563eb">
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-  <!-- Styles -->
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header class="header">
-    <h1>GitHub Profile Analyzer</h1>
-    <button id="themeToggle" aria-label="Toggle dark mode">🌙</button>
-  </header>
+<header class="header">
+  <h1>GitHub Profile Analyzer</h1>
+  <button id="themeToggle">🌙</button>
+</header>
 
-  <!-- SEARCH -->
-  <section class="search-section">
-    <form id="searchForm">
-      <input
-        type="text"
-        id="usernameInput"
-        placeholder="Enter GitHub username"
-        autocomplete="off"
-        required
-      />
-      <button type="submit">Analyze</button>
-    </form>
+<section class="search-section">
+  <form id="searchForm">
+    <input id="usernameInput" placeholder="GitHub username" required />
+    <button type="submit">Analyze</button>
+  </form>
+  <div id="history" class="history"></div>
+  <div id="error" class="error"></div>
+</section>
 
-    <div id="history" class="history"></div>
-    <div id="error" class="error"></div>
+<div id="loader" class="loader">Loading...</div>
+
+<main id="content">
+
+  <section id="profile" class="card"></section>
+  <section id="stats" class="stats-grid"></section>
+
+  <section class="charts">
+    <div class="card">
+      <h3>Languages</h3>
+      <canvas id="languageChart"></canvas>
+    </div>
+    <div class="card">
+      <h3>Top Starred Repos</h3>
+      <canvas id="starsChart"></canvas>
+    </div>
+  </section>
+
+  <section id="repos" class="repos-grid"></section>
+
+  <section id="contributions" class="card"></section>
+
+  <section id="aiInsights" class="card"></section>
+
+  <section class="card">
+    <button onclick="exportPDF()">Export PDF</button>
   </section>
 
   <section class="card">
-  <h2>Compare Profiles</h2>
-  <div class="compare-form">
+    <h2>Compare Profiles</h2>
     <input id="compareUser1" placeholder="Username 1" />
     <input id="compareUser2" placeholder="Username 2" />
-    <button onclick="compareUsers(
-      compareUser1.value,
-      compareUser2.value
-    )">Compare</button>
-  </div>
-</section>
+    <button onclick="compareUsers(compareUser1.value, compareUser2.value)">
+      Compare
+    </button>
+  </section>
 
-<section id="comparison"></section>
+  <section id="comparison"></section>
 
-  <!-- LOADER -->
-  <div id="loader" class="loader">Loading...</div>
-<button onclick="exportPDF()">Export PDF</button>
-  <!-- PROFILE -->
-  <main id="content">
+</main>
 
-    <!-- PROFILE OVERVIEW -->
-    <section id="profile" class="card profile"></section>
-
-    <!-- STATS -->
-    <section id="stats" class="stats-grid"></section>
-
-    <!-- CHARTS -->
-    <section class="charts">
-      <div class="card">
-        <h3>Languages</h3>
-        <canvas id="languageChart"></canvas>
-      </div>
-      <div class="card">
-        <h3>Top Starred Repos</h3>
-        <canvas id="starsChart"></canvas>
-      </div>
-    </section>
-
-    <!-- REPOSITORIES -->
-    <section id="repos" class="repos-grid"></section>
-
-  </main>
-
-  <!-- SCRIPTS (ORDER MATTERS) -->
-  <script src="js/api.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/charts.js"></script>
-  <script src="js/theme.js"></script>
-  <script src="js/main.js"></script>
-  <script src="js/compare.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/main.js"></script>
+<script src="js/compare.js"></script>
 
 </body>
 </html>
