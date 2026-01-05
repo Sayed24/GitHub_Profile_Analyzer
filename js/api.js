@@ -3,6 +3,14 @@
 ========================= */
 const API_BASE = "https://api.github.com/users";
 
+const GITHUB_TOKEN = ""; // optional personal token
+
+function getHeaders() {
+  return GITHUB_TOKEN
+    ? { Authorization: `token ${GITHUB_TOKEN}` }
+    : {};
+}
+
 /* =========================
    RATE LIMIT CHECK
 ========================= */
