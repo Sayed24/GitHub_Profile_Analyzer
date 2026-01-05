@@ -22,6 +22,16 @@ function clearError() {
   errorBox.textContent = "";
   errorBox.style.display = "none";
 }
+function exportPDF() {
+  const element = document.getElementById("content");
+  html2pdf().set({
+    margin: 0.5,
+    filename: "github-profile-report.pdf",
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: "in", format: "a4" }
+  }).from(element).save();
+}
 
 /* =========================
    SEARCH HISTORY
