@@ -36,6 +36,20 @@
     <div id="error" class="error"></div>
   </section>
 
+  <section class="card">
+  <h2>Compare Profiles</h2>
+  <div class="compare-form">
+    <input id="compareUser1" placeholder="Username 1" />
+    <input id="compareUser2" placeholder="Username 2" />
+    <button onclick="compareUsers(
+      compareUser1.value,
+      compareUser2.value
+    )">Compare</button>
+  </div>
+</section>
+
+<section id="comparison"></section>
+
   <!-- LOADER -->
   <div id="loader" class="loader">Loading...</div>
 
