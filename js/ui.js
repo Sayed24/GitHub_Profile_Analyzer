@@ -128,3 +128,19 @@ function copyLink() {
   navigator.clipboard.writeText(url);
   alert("Profile link copied!");
 }
+function animateCounter(el, target) {
+  let start = 0;
+  const duration = 800;
+  const step = Math.max(1, Math.floor(target / (duration / 16)));
+
+  function update() {
+    start += step;
+    if (start >= target) {
+      el.textContent = target.toLocaleString();
+    } else {
+      el.textContent = start.toLocaleString();
+      requestAnimationFrame(update);
+    }
+  }
+  update();
+}
