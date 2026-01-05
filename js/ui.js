@@ -81,6 +81,7 @@ function showStats(user, repos) {
   statsEl.querySelectorAll("strong").forEach(el => {
     animateValue(el, 0, Number(el.textContent));
   });
+   animateCounter(statValueElement, value);
 }
 
 /* =========================
