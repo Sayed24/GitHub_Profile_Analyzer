@@ -219,3 +219,12 @@ main {
     grid-template-columns: 1fr 1fr;
   }
 }
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
