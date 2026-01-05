@@ -232,3 +232,6 @@ main {
   -webkit-background-clip: text;
   color: transparent;
 }
+button:active {
+  transform: scale(0.97);
+}
