@@ -65,3 +65,32 @@ https://github.com/Sayed24/GitHub_Profile_Analyzer/tree/main
 ---
 
 ## 📁 Project Structure
+
+---
+
+## 🚀 How to Run Locally
+
+1. Clone the repository
+2. Open `index.html` in your browser
+3. Enter a GitHub username and analyze
+
+---
+
+## ⚠️ API Notes
+- Uses GitHub public API (unauthenticated)
+- Rate limit: 60 requests/hour
+- Smart caching implemented with localStorage
+
+---
+
+## 📌 Future Improvements
+- PDF export
+- Offline mode
+- Repo filtering & sorting
+- OAuth for higher API limits
+
+---
+
+## 👤 Author
+**Sayedrahim Sadat**  
+Web Developer | JavaScript | UI/UX  
