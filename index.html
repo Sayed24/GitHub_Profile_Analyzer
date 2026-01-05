@@ -1,95 +1,76 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GitHub Profile Analyzer</title>
-
-  <link rel="stylesheet" href="css/styles.css" />
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- jsPDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
 
-<header class="header">
-  <h1>GitHub Profile Analyzer</h1>
-  <button id="themeToggle">🌙</button>
-</header>
-
-<main class="container">
+  <!-- HEADER -->
+  <header class="header">
+    <h1>GitHub Profile Analyzer</h1>
+    <button id="themeToggle" aria-label="Toggle dark mode">🌙</button>
+  </header>
 
   <!-- SEARCH -->
-  <section class="search-section card glass">
-    <input id="usernameInput" placeholder="Enter GitHub username">
-    <button id="searchBtn">Analyze</button>
-  </section>
+  <section class="search-section">
+    <form id="searchForm">
+      <input
+        type="text"
+        id="usernameInput"
+        placeholder="Enter GitHub username"
+        autocomplete="off"
+        required
+      />
+      <button type="submit">Analyze</button>
+    </form>
 
-  <!-- HISTORY -->
-  <section id="history" class="history"></section>
+    <div id="history" class="history"></div>
+    <div id="error" class="error"></div>
+  </section>
 
   <!-- LOADER -->
-  <div id="loader" class="loader hidden"></div>
-  <p id="error" class="error hidden"></p>
+  <div id="loader" class="loader">Loading...</div>
 
   <!-- PROFILE -->
-  <section id="profile" class="hidden"></section>
+  <main id="content">
 
-  <!-- STATS -->
-  <section id="stats" class="stats hidden"></section>
+    <!-- PROFILE OVERVIEW -->
+    <section id="profile" class="card profile"></section>
 
-  <!-- REPO CONTROLS -->
-  <section class="card repo-controls hidden" id="repoControls">
-    <select id="sortRepos">
-      <option value="stars">Sort by Stars</option>
-      <option value="forks">Sort by Forks</option>
-      <option value="updated">Last Updated</option>
-    </select>
+    <!-- STATS -->
+    <section id="stats" class="stats-grid"></section>
 
-    <select id="filterLang">
-      <option value="all">All Languages</option>
-    </select>
-  </section>
+    <!-- CHARTS -->
+    <section class="charts">
+      <div class="card">
+        <h3>Languages</h3>
+        <canvas id="languageChart"></canvas>
+      </div>
+      <div class="card">
+        <h3>Top Starred Repos</h3>
+        <canvas id="starsChart"></canvas>
+      </div>
+    </section>
 
-  <!-- CHART -->
-  <section id="chartCard" class="card hidden">
-    <h3>Language Usage</h3>
-    <canvas id="languageChart"></canvas>
-  </section>
+    <!-- REPOSITORIES -->
+    <section id="repos" class="repos-grid"></section>
 
-  <!-- REPOS -->
-  <section id="repos" class="repos hidden"></section>
+  </main>
 
-  <!-- COMPARE -->
-  <section class="card glass">
-    <h3>Compare Profiles</h3>
-    <input id="userA" placeholder="First username">
-    <input id="userB" placeholder="Second username">
-    <button id="compareBtn">Compare</button>
-  </section>
-
-  <section id="compareResult" class="compare-grid hidden"></section>
-
-  <section id="compareChartCard" class="card hidden">
-    <h3>Language Comparison</h3>
-    <canvas id="compareChart"></canvas>
-  </section>
-
-</main>
-
-<footer class="footer">
-  Portfolio Project • GitHub API
-</footer>
-
-<!-- JS FILES (ORDER MATTERS) -->
-<script src="js/api.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/charts.js"></script>
-<script src="js/theme.js"></script>
-<script src="js/main.js"></script>
+  <!-- SCRIPTS (ORDER MATTERS) -->
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/main.js"></script>
 
 </body>
 </html>
