@@ -1,71 +1,172 @@
+/* =====================
+   CSS VARIABLES
+===================== */
 :root {
   --bg: #f4f6f8;
   --card: #ffffff;
-  --text: #111827;
-  --accent: #2563eb;
+  --text: #0f172a;
   --muted: #6b7280;
+  --accent: #2563eb;
+  --shadow: rgba(0, 0, 0, 0.08);
 }
 
 [data-theme="dark"] {
   --bg: #0f172a;
   --card: #111827;
   --text: #e5e7eb;
-  --accent: #38bdf8;
   --muted: #9ca3af;
+  --accent: #38bdf8;
+  --shadow: rgba(0, 0, 0, 0.4);
 }
 
+/* =====================
+   GLOBAL
+===================== */
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg);
   color: var(--text);
 }
 
+h1, h2, h3, h4 {
+  margin-top: 0;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* =====================
+   HEADER
+===================== */
 .header {
-  padding: 1rem;
   background: var(--card);
+  padding: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0 4px 10px var(--shadow);
 }
 
+#themeToggle {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+/* =====================
+   LAYOUT
+===================== */
 .container {
-  padding: 1rem;
   max-width: 1100px;
   margin: auto;
+  padding: 1rem;
 }
 
+/* =====================
+   CARDS
+===================== */
+.card {
+  background: var(--card);
+  padding: 1rem;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px var(--shadow);
+  margin-bottom: 1rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px var(--shadow);
+}
+
+/* Glassmorphism */
+.glass {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+[data-theme="dark"] .glass {
+  background: rgba(17, 24, 39, 0.75);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* =====================
+   SEARCH
+===================== */
 .search-section {
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 1rem;
 }
 
 .search-section input {
   flex: 1;
-  padding: 0.75rem;
 }
 
-.search-section button {
-  padding: 0.75rem 1rem;
+/* =====================
+   INPUTS & BUTTONS
+===================== */
+input, select, button {
+  padding: 0.7rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--muted);
+  font-size: 0.95rem;
+}
+
+button {
   background: var(--accent);
-  border: none;
   color: white;
+  border: none;
   cursor: pointer;
+  font-weight: 600;
 }
 
-.card {
-  background: var(--card);
-  padding: 1rem;
-  border-radius: 12px;
-  margin-bottom: 1rem;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+button:hover {
+  opacity: 0.9;
 }
 
+/* =====================
+   HISTORY
+===================== */
+.history button {
+  margin: 0.3rem 0.3rem 0 0;
+}
+
+/* =====================
+   LOADER
+===================== */
+.loader {
+  width: 42px;
+  height: 42px;
+  border: 4px solid var(--muted);
+  border-top: 4px solid var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 1.5rem auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* =====================
+   PROFILE
+===================== */
+#profile img {
+  border-radius: 50%;
+  margin-bottom: 0.5rem;
+}
+
+/* =====================
+   STATS
+===================== */
 .stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -77,8 +178,21 @@ body {
   padding: 1rem;
   border-radius: 12px;
   text-align: center;
+  box-shadow: 0 10px 25px var(--shadow);
 }
 
+/* =====================
+   REPO CONTROLS
+===================== */
+.repo-controls {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* =====================
+   REPOS
+===================== */
 .repos {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -89,89 +203,59 @@ body {
   background: var(--card);
   padding: 1rem;
   border-radius: 12px;
+  box-shadow: 0 10px 25px var(--shadow);
 }
 
-.history button {
-  margin-right: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.loader {
-  width: 40px;
-  height: 40px;
-  border: 4px solid var(--muted);
-  border-top: 4px solid var(--accent);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 1rem auto;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.hidden {
-  display: none;
-}
-
-.footer {
-  text-align: center;
-  padding: 1rem;
-  color: var(--muted);
-}
-
-/* Mobile tweaks */
-@media (max-width: 640px) {
-  .search-section {
-    flex-direction: column;
-  }
-}
-.compare-inputs {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
+/* =====================
+   COMPARE
+===================== */
 .compare-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1rem;
-  margin-bottom: 2rem;
 }
 
 .compare-card {
   padding: 1rem;
   border-radius: 12px;
   background: var(--card);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  box-shadow: 0 10px 25px var(--shadow);
 }
 
 .winner {
   border: 2px solid var(--accent);
 }
-.card, .repo, .compare-card {
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+/* =====================
+   FOOTER
+===================== */
+.footer {
+  text-align: center;
+  padding: 1rem;
+  color: var(--muted);
 }
 
-.card:hover,
-.repo:hover,
-.compare-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
-}
-
-button {
+/* =====================
+   SKELETON LOADERS
+===================== */
+.skeleton {
+  height: 20px;
   border-radius: 10px;
-  font-weight: 600;
+  margin-bottom: 10px;
+  background: linear-gradient(90deg, #e5e7eb, #f3f4f6, #e5e7eb);
+  background-size: 200% 100%;
+  animation: skeleton 1.5s infinite;
 }
 
-input {
-  border-radius: 10px;
-  border: 1px solid var(--muted);
+@keyframes skeleton {
+  to { background-position: -200% 0; }
 }
 
-.repo-controls {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
+/* =====================
+   MOBILE
+===================== */
+@media (max-width: 640px) {
+  .search-section {
+    flex-direction: column;
+  }
 }
