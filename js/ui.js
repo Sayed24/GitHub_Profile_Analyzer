@@ -1,158 +1,163 @@
-/* =========================
-   UI Rendering & Insights
-   ========================= */
+/* ===========================
+   UI HELPERS
+=========================== */
 
-/* ---------- Helpers ---------- */
-
-function show(el) {
-  el.classList.remove("hidden");
-}
-
-function hide(el) {
-  el.classList.add("hidden");
+function qs(id) {
+  return document.getElementById(id);
 }
 
 function formatDate(dateStr) {
-  return new Date(dateStr).toLocaleDateString();
+  return new Date(dateStr).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  });
 }
 
-/* ---------- Animated Counter ---------- */
-
 function animateCounter(el, target) {
-  let current = 0;
+  let start = 0;
   const duration = 800;
   const step = Math.max(1, Math.floor(target / (duration / 16)));
 
-  function tick() {
-    current += step;
-    if (current >= target) {
-      el.textContent = target.toLocaleString();
+  function update() {
+    start += step;
+    if (start >= target) {
+      el.textContent = target;
     } else {
-      el.textContent = current.toLocaleString();
-      requestAnimationFrame(tick);
+      el.textContent = start;
+      requestAnimationFrame(update);
     }
   }
-  tick();
+  update();
 }
 
-/* ---------- Profile ---------- */
+/* ===========================
+   ERROR & EMPTY STATES
+=========================== */
+
+function showError(message) {
+  qs("error").innerHTML = `
+    <div class="card">
+      <strong style="color:var(--danger)">⚠ ${message}</strong>
+    </div>
+  `;
+}
+
+function clearError() {
+  qs("error").innerHTML = "";
+}
+
+/* ===========================
+   PROFILE RENDER
+=========================== */
 
 function renderProfile(user) {
-  const profile = document.getElementById("profile");
-
-  profile.innerHTML = `
-    <img src="${user.avatar_url}" alt="avatar" />
-    <div class="profile-meta">
+  qs("profile").innerHTML = `
+    <img src="${user.avatar_url}" alt="${user.login}" />
+    <div>
       <h2>${user.name || user.login}</h2>
       <p>@${user.login}</p>
       ${user.bio ? `<p>${user.bio}</p>` : ""}
-      ${user.location ? `<p>📍 ${user.location}</p>` : ""}
-      ${user.blog ? `<a href="${user.blog}" target="_blank">${user.blog}</a>` : ""}
+      <p>
+        ${user.location ? `📍 ${user.location}` : ""}
+        ${user.company ? ` • 🏢 ${user.company}` : ""}
+      </p>
+      <p>
+        <a href="${user.html_url}" target="_blank">GitHub Profile</a>
+      </p>
+      <p>Joined ${formatDate(user.created_at)}</p>
+    </div>
+  `;
+}
+
+/* ===========================
+   STATS
+=========================== */
+
+function renderStats(user, totals, activityScore) {
+  qs("stats").innerHTML = `
+    <div class="stats-grid">
+      <div class="stat">
+        <strong id="repoCount">0</strong>
+        <span>Repositories</span>
+      </div>
+      <div class="stat">
+        <strong id="followers">0</strong>
+        <span>Followers</span>
+      </div>
+      <div class="stat">
+        <strong id="stars">0</strong>
+        <span>Stars</span>
+      </div>
+      <div class="stat">
+        <strong id="activity">0</strong>
+        <span>Activity Score</span>
+      </div>
     </div>
   `;
 
-  show(profile);
+  animateCounter(qs("repoCount"), user.public_repos);
+  animateCounter(qs("followers"), user.followers);
+  animateCounter(qs("stars"), totals.stars);
+  animateCounter(qs("activity"), activityScore);
 }
 
-/* ---------- Stats ---------- */
+/* ===========================
+   REPOSITORIES
+=========================== */
 
-function renderStats(user, repoStats) {
-  const stats = document.getElementById("stats");
+function renderRepos(repos) {
+  if (!repos.length) {
+    qs("repos").innerHTML = `<div class="card">No repositories found</div>`;
+    return;
+  }
 
-  stats.innerHTML = `
-    <div class="card stat">
-      <h3 data-value="${user.public_repos}">0</h3>
-      <span>Repos</span>
-    </div>
-    <div class="card stat">
-      <h3 data-value="${user.followers}">0</h3>
-      <span>Followers</span>
-    </div>
-    <div class="card stat">
-      <h3 data-value="${user.following}">0</h3>
-      <span>Following</span>
-    </div>
-    <div class="card stat">
-      <h3 data-value="${repoStats.stars}">0</h3>
-      <span>Stars</span>
-    </div>
-  `;
-
-  stats.querySelectorAll("h3").forEach(el => {
-    animateCounter(el, parseInt(el.dataset.value, 10));
-  });
-
-  show(stats);
+  qs("repos").innerHTML = repos
+    .slice(0, 5)
+    .map(
+      repo => `
+      <div class="card">
+        <h3>
+          <a href="${repo.html_url}" target="_blank">${repo.name}</a>
+        </h3>
+        <p>${repo.description || "No description"}</p>
+        <p>
+          ${repo.language || "—"} • ⭐ ${repo.stargazers_count}
+          • 🍴 ${repo.forks_count}
+        </p>
+        <p>Updated ${formatDate(repo.updated_at)}</p>
+      </div>
+    `
+    )
+    .join("");
 }
 
-/* ---------- Contributions ---------- */
+/* ===========================
+   AI INSIGHTS (BASIC)
+=========================== */
 
-function renderContributions(data) {
-  const container = document.getElementById("contributions");
-
-  container.innerHTML = `
-    <h3>Recent Contributions</h3>
-    <div class="contribution-grid">
-      ${data
-        .map(
-          active =>
-            `<div class="contribution-cell ${
-              active ? "active" : ""
-            }"></div>`
-        )
-        .join("")}
-    </div>
-  `;
-
-  show(container);
-}
-
-/* ---------- AI-Based Insights ---------- */
-
-function generateInsights(user, repos) {
+function renderAIInsights(user, repos) {
   const insights = [];
 
-  if (repos.length === 0) {
-    insights.push("This user has no public repositories.");
-  }
+  if (user.followers > 1000) insights.push("Strong community presence");
+  if (repos.length > 30) insights.push("Highly active developer");
+  if (repos.some(r => r.language === "JavaScript"))
+    insights.push("JavaScript-focused profile");
 
-  if (user.followers > 500) {
-    insights.push("Strong community presence with high follower count.");
-  }
-
-  const languages = {};
-  repos.forEach(r => {
-    if (r.language) {
-      languages[r.language] = (languages[r.language] || 0) + 1;
-    }
-  });
-
-  const topLang = Object.entries(languages).sort((a, b) => b[1] - a[1])[0];
-  if (topLang) {
-    insights.push(`Primary focus appears to be ${topLang[0]}.`);
-  }
-
-  const yearsOnGitHub =
-    (Date.now() - new Date(user.created_at).getTime()) /
-    (1000 * 60 * 60 * 24 * 365);
-
-  if (yearsOnGitHub > 5) {
-    insights.push("Long-term GitHub usage shows consistent experience.");
-  }
-
-  return insights;
-}
-
-function renderInsights(user, repos) {
-  const container = document.getElementById("aiInsights");
-  const insights = generateInsights(user, repos);
-
-  container.innerHTML = `
-    <h3>AI Insights</h3>
+  qs("aiInsights").innerHTML = `
     <ul>
-      ${insights.map(i => `<li>${i}</li>`).join("")}
+      ${insights.map(i => `<li>${i}</li>`).join("") || "<li>No insights yet</li>"}
     </ul>
   `;
-
-  show(container);
 }
+
+/* ===========================
+   EXPORTS
+=========================== */
+
+window.renderProfile = renderProfile;
+window.renderStats = renderStats;
+window.renderRepos = renderRepos;
+window.renderAIInsights = renderAIInsights;
+window.showError = showError;
+window.clearError = clearError;
