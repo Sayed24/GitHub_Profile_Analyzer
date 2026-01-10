@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- SEO -->
-  <meta name="description" content="Advanced GitHub profile analytics with real insights, charts, offline mode, and comparison." />
+  <meta name="description" content="Advanced GitHub profile analytics with charts, insights, offline mode, and PWA support." />
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.json" />
@@ -20,15 +20,33 @@
 </head>
 
 <body>
+
 <header class="topbar">
-  <h1>GitHub Analytics <span>Pro</span></h1>
+  <div class="topbar-inner">
+    <h1>GitHub Analytics <span>Pro</span></h1>
+
+    <div class="top-actions">
+      <button id="installBtn" class="ghost-btn hidden">Install App</button>
+      <button id="notifyBtn" class="ghost-btn">Enable Alerts</button>
+    </div>
+  </div>
 </header>
+
+<!-- OFFLINE BANNER -->
+<div id="offlineBanner" class="offline hidden">
+  You are offline. Showing cached data.
+</div>
 
 <main class="container">
 
   <!-- SEARCH -->
-  <section class="card">
-    <input id="usernameInput" type="text" placeholder="Enter GitHub username" />
+  <section class="card search-card">
+    <input
+      id="usernameInput"
+      type="text"
+      placeholder="Enter GitHub username"
+      autocomplete="off"
+    />
     <button id="searchBtn">Analyze</button>
   </section>
 
@@ -39,11 +57,13 @@
   <section id="stats" class="stats-grid hidden"></section>
 
   <!-- CHARTS -->
-  <section class="grid-2 hidden" id="chartsSection">
+  <section id="chartsSection" class="grid-2 hidden">
     <div class="card">
+      <h3>Language Usage</h3>
       <canvas id="languageChart"></canvas>
     </div>
     <div class="card">
+      <h3>Top Repositories</h3>
       <canvas id="starsChart"></canvas>
     </div>
   </section>
@@ -57,18 +77,25 @@
 </main>
 
 <footer>
-  <a href="compare.html">Compare Two Users</a>
+  <nav class="footer-nav">
+    <a href="compare.html">Compare Profiles</a>
+    <span>•</span>
+    <span>Offline & PWA Ready</span>
+  </nav>
 </footer>
 
+<!-- Scripts -->
 <script src="js/api.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/charts.js"></script>
 <script src="js/app.js"></script>
+<script src="js/pwa.js"></script>
 
 <script>
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js");
   }
 </script>
+
 </body>
 </html>
