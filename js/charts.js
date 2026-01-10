@@ -1,48 +1,71 @@
-/* =========================
-   Charts Rendering
-   ========================= */
+/* ===========================
+   CHART CONFIG
+=========================== */
 
-let languageChartInstance = null;
-let starsChartInstance = null;
+let languageChart = null;
 
-/* ---------- Helpers ---------- */
+function generateColors(count) {
+  const baseColors = [
+    "#58a6ff", "#7ee787", "#f778ba",
+    "#ffa657", "#d2a8ff", "#f85149",
+    "#a371f7", "#39d353"
+  ];
 
-function destroyChart(chart) {
-  if (chart) {
-    chart.destroy();
-  }
+  return Array.from({ length: count }, (_, i) =>
+    baseColors[i % baseColors.length]
+  );
 }
 
-/* ---------- Language Usage Chart ---------- */
+/* ===========================
+   RENDER LANGUAGE CHART
+=========================== */
 
-function renderLanguageChart(languageMap) {
-  const ctx = document
-    .getElementById("languageChart")
-    .getContext("2d");
+function renderLanguageChart(languageStats) {
+  const ctx = document.getElementById("languageChart");
 
-  const labels = Object.keys(languageMap);
-  const data = Object.values(languageMap);
+  if (!ctx) return;
 
-  destroyChart(languageChartInstance);
+  if (languageChart) {
+    languageChart.destroy();
+  }
 
-  languageChartInstance = new Chart(ctx, {
+  const labels = Object.keys(languageStats);
+  const values = Object.values(languageStats);
+
+  if (!labels.length) {
+    ctx.parentElement.innerHTML =
+      `<div class="card">No language data available</div>`;
+    return;
+  }
+
+  languageChart = new Chart(ctx, {
     type: "doughnut",
     data: {
       labels,
       datasets: [
         {
-          data,
-          borderWidth: 1
+          data: values,
+          backgroundColor: generateColors(labels.length),
+          borderWidth: 0
         }
       ]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: {
           position: "bottom",
           labels: {
-            color: "#e6edf3"
+            color: "#c9d1d9",
+            boxWidth: 12,
+            padding: 15
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx =>
+              `${ctx.label}: ${ctx.parsed}`
           }
         }
       }
@@ -50,45 +73,18 @@ function renderLanguageChart(languageMap) {
   });
 }
 
-/* ---------- Stars Distribution ---------- */
+/* ===========================
+   RESIZE HANDLER
+=========================== */
 
-function renderStarsChart(repos) {
-  const ctx = document
-    .getElementById("starsChart")
-    .getContext("2d");
+window.addEventListener("resize", () => {
+  if (languageChart) {
+    languageChart.resize();
+  }
+});
 
-  const topRepos = [...repos]
-    .sort((a, b) => b.stargazers_count - a.stargazers_count)
-    .slice(0, 5);
+/* ===========================
+   EXPORT
+=========================== */
 
-  const labels = topRepos.map(r => r.name);
-  const data = topRepos.map(r => r.stargazers_count);
-
-  destroyChart(starsChartInstance);
-
-  starsChartInstance = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [
-        {
-          data
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false }
-      },
-      scales: {
-        x: {
-          ticks: { color: "#e6edf3" }
-        },
-        y: {
-          ticks: { color: "#e6edf3" }
-        }
-      }
-    }
-  });
-}
+window.renderLanguageChart = renderLanguageChart;
