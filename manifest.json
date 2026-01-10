@@ -1,22 +1,58 @@
 {
   "name": "GitHub Profile Analyzer",
   "short_name": "GitHub Analyzer",
-  "description": "Analyze GitHub profiles with stats, charts, AI insights, offline mode, and comparison.",
+  "description": "Analyze GitHub profiles with stats, charts, AI insights, offline support, and PWA features.",
   "start_url": "/index.html",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0d1117",
   "theme_color": "#0d1117",
   "orientation": "portrait-primary",
+  "categories": ["productivity", "developer", "tools"],
+  "lang": "en-US",
+
   "icons": [
     {
       "src": "assets/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "assets/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+
+  "screenshots": [
+    {
+      "src": "assets/icons/screenshot-mobile.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "assets/icons/screenshot-desktop.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+
+  "shortcuts": [
+    {
+      "name": "Compare Profiles",
+      "short_name": "Compare",
+      "description": "Compare two GitHub users side by side",
+      "url": "/compare.html",
+      "icons": [
+        {
+          "src": "assets/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }
