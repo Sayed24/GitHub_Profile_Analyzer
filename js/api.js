@@ -1,125 +1,142 @@
-/* ===========================
+/* =========================================================
    API CONFIG
-=========================== */
+========================================================= */
 
-const API_BASE = "https://api.github.com";
+const GITHUB_API = "https://api.github.com";
+const CACHE_TTL = 1000 * 60 * 30; // 30 minutes
 
-/*
-  OPTIONAL:
-  Add your GitHub token for higher rate limits.
-  This is SAFE for public demos but optional.
-*/
-const GITHUB_TOKEN = ""; // <-- optional
+// OPTIONAL: add your token for higher rate limits
+// const GITHUB_TOKEN = "ghp_xxx";
 
-const headers = {
-  Accept: "application/vnd.github+json"
-};
+/* =========================================================
+   GENERIC FETCH WITH CACHE + RATE LIMIT
+========================================================= */
 
-if (GITHUB_TOKEN) {
-  headers.Authorization = `token ${GITHUB_TOKEN}`;
-}
+async function fetchWithCache(url, cacheKey) {
+  const cached = localStorage.getItem(cacheKey);
 
-/* ===========================
-   GENERIC FETCH
-=========================== */
+  if (cached) {
+    const { data, timestamp } = JSON.parse(cached);
+    if (Date.now() - timestamp < CACHE_TTL) {
+      return data;
+    }
+  }
 
-async function apiFetch(url) {
+  const headers = {};
+  if (typeof GITHUB_TOKEN !== "undefined") {
+    headers.Authorization = `token ${GITHUB_TOKEN}`;
+  }
+
   const res = await fetch(url, { headers });
 
-  if (res.status === 404) throw new Error("User not found");
-  if (res.status === 403) throw new Error("API rate limit exceeded");
-  if (!res.ok) throw new Error("GitHub API error");
+  if (res.status === 403) {
+    throw new Error("API rate limit exceeded");
+  }
 
-  return res.json();
+  if (!res.ok) {
+    throw new Error("GitHub user not found");
+  }
+
+  const data = await res.json();
+
+  localStorage.setItem(
+    cacheKey,
+    JSON.stringify({ data, timestamp: Date.now() })
+  );
+
+  return data;
 }
 
-/* ===========================
-   USER DATA
-=========================== */
+/* =========================================================
+   FETCH USER PROFILE
+========================================================= */
 
-async function getUser(username) {
-  return apiFetch(`${API_BASE}/users/${username}`);
-}
-
-/* ===========================
-   REPOSITORIES
-=========================== */
-
-async function getRepos(username) {
-  return apiFetch(
-    `${API_BASE}/users/${username}/repos?per_page=100&sort=updated`
+async function getUserProfile(username) {
+  return fetchWithCache(
+    `${GITHUB_API}/users/${username}`,
+    `profile_${username}`
   );
 }
 
-/* ===========================
-   LANGUAGE STATS
-=========================== */
+/* =========================================================
+   FETCH USER REPOS
+========================================================= */
 
-async function getLanguageStats(username) {
-  const repos = await getRepos(username);
-  const totals = {};
+async function getUserRepos(username) {
+  return fetchWithCache(
+    `${GITHUB_API}/users/${username}/repos?per_page=100&sort=updated`,
+    `repos_${username}`
+  );
+}
+
+/* =========================================================
+   LANGUAGE AGGREGATION
+========================================================= */
+
+function calculateLanguages(repos) {
+  const languages = {};
 
   repos.forEach(repo => {
     if (!repo.language) return;
-    totals[repo.language] = (totals[repo.language] || 0) + 1;
+    languages[repo.language] =
+      (languages[repo.language] || 0) + 1;
   });
 
-  return totals;
+  return languages;
 }
 
-/* ===========================
-   STAR & FORK TOTALS
-=========================== */
+/* =========================================================
+   REPOSITORY STATISTICS
+========================================================= */
 
-async function getRepoTotals(username) {
-  const repos = await getRepos(username);
+function calculateRepoStats(repos) {
+  let stars = 0;
+  let forks = 0;
+  let mostStarred = null;
 
-  return repos.reduce(
-    (acc, repo) => {
-      acc.stars += repo.stargazers_count;
-      acc.forks += repo.forks_count;
-      return acc;
-    },
-    { stars: 0, forks: 0 }
-  );
+  repos.forEach(repo => {
+    stars += repo.stargazers_count;
+    forks += repo.forks_count;
+
+    if (
+      !mostStarred ||
+      repo.stargazers_count > mostStarred.stargazers_count
+    ) {
+      mostStarred = repo;
+    }
+  });
+
+  return {
+    totalRepos: repos.length,
+    totalStars: stars,
+    totalForks: forks,
+    mostStarred
+  };
 }
 
-/* ===========================
-   MOST STARRED REPO
-=========================== */
+/* =========================================================
+   ACTIVITY SCORE (CUSTOM LOGIC)
+========================================================= */
 
-async function getTopRepo(username) {
-  const repos = await getRepos(username);
-  return repos.sort(
-    (a, b) => b.stargazers_count - a.stargazers_count
-  )[0];
-}
-
-/* ===========================
-   ACTIVITY SCORE (CUSTOM)
-=========================== */
-
-function calculateActivityScore(user, repos) {
+function calculateActivityScore(profile, repos) {
   const years =
-    (Date.now() - new Date(user.created_at)) /
+    (Date.now() - new Date(profile.created_at)) /
     (1000 * 60 * 60 * 24 * 365);
 
   const repoRate = repos.length / Math.max(years, 1);
-  const score =
-    repoRate * 10 +
-    user.followers * 0.5 +
-    repos.reduce((s, r) => s + r.stargazers_count, 0) * 0.2;
+  const followerWeight = profile.followers * 0.2;
 
-  return Math.round(score);
+  return Math.round(repoRate * 10 + followerWeight);
 }
 
-/* ===========================
-   EXPORTS
-=========================== */
+/* =========================================================
+   EXPORT
+========================================================= */
 
-window.getUser = getUser;
-window.getRepos = getRepos;
-window.getLanguageStats = getLanguageStats;
-window.getRepoTotals = getRepoTotals;
-window.getTopRepo = getTopRepo;
-window.calculateActivityScore = calculateActivityScore;
+window.api = {
+  getUserProfile,
+  getUserRepos,
+  calculateLanguages,
+  calculateRepoStats,
+  calculateActivityScore
+};
