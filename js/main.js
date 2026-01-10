@@ -1,127 +1,129 @@
-/* =========================
-   DOM ELEMENTS
-========================= */
-const form = document.getElementById("searchForm");
-const input = document.getElementById("usernameInput");
-const errorBox = document.getElementById("error");
-const loader = document.getElementById("loader");
+/* ===========================
+   DOM REFERENCES
+=========================== */
 
-/* =========================
-   UTILITIES
-========================= */
-function showLoader(show = true) {
-  loader.style.display = show ? "block" : "none";
+const searchInput = document.getElementById("usernameInput");
+const searchBtn = document.getElementById("searchBtn");
+const historyContainer = document.getElementById("history");
+
+/* ===========================
+   SEARCH HANDLER
+=========================== */
+
+async function searchUser(username) {
+  if (!username) return;
+
+  clearError();
+
+  try {
+    // PROFILE
+    const user = await getUser(username);
+    renderProfile(user);
+
+    // REPOS
+    const repos = await getRepos(username);
+    renderRepos(repos);
+
+    // TOTALS
+    const totals = await getRepoTotals(username);
+
+    // ACTIVITY
+    const activityScore = calculateActivityScore(user, repos);
+    renderStats(user, totals, activityScore);
+
+    // LANGUAGES
+    const languages = await getLanguageStats(username);
+    renderLanguageChart(languages);
+
+    // AI INSIGHTS
+    renderAIInsights(user, repos);
+
+    // SAVE HISTORY
+    saveHistory(username);
+
+    // UPDATE URL
+    updateURL(username);
+
+  } catch (err) {
+    showError(err.message || "Something went wrong");
+  }
 }
 
-function showError(msg) {
-  errorBox.textContent = msg;
-  errorBox.style.display = "block";
-}
+/* ===========================
+   EVENTS
+=========================== */
 
-function clearError() {
-  errorBox.textContent = "";
-  errorBox.style.display = "none";
-}
-function exportPDF() {
-  const element = document.getElementById("content");
-  html2pdf().set({
-    margin: 0.5,
-    filename: "github-profile-report.pdf",
-    image: { type: "jpeg", quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: "in", format: "a4" }
-  }).from(element).save();
-}
+searchBtn.addEventListener("click", () => {
+  searchUser(searchInput.value.trim());
+});
 
-/* =========================
+searchInput.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    searchUser(searchInput.value.trim());
+  }
+});
+
+/* ===========================
    SEARCH HISTORY
-========================= */
+=========================== */
+
 function saveHistory(username) {
-  let history = JSON.parse(localStorage.getItem("history")) || [];
+  let history = JSON.parse(localStorage.getItem("gh-history")) || [];
+
   history = history.filter(u => u !== username);
   history.unshift(username);
-  history = history.slice(0, 5);
-  localStorage.setItem("history", JSON.stringify(history));
+
+  if (history.length > 5) history.length = 5;
+
+  localStorage.setItem("gh-history", JSON.stringify(history));
   renderHistory();
 }
 
 function renderHistory() {
-  const container = document.getElementById("history");
-  if (!container) return;
+  const history = JSON.parse(localStorage.getItem("gh-history")) || [];
 
-  const history = JSON.parse(localStorage.getItem("history")) || [];
-  container.innerHTML = "";
-
-  history.forEach(user => {
-    const btn = document.createElement("button");
-    btn.textContent = user;
-    btn.onclick = () => loadProfile(user);
-    container.appendChild(btn);
-  });
+  historyContainer.innerHTML = history
+    .map(
+      user => `
+      <button class="ghost-btn" onclick="searchUser('${user}')">
+        ${user}
+      </button>
+    `
+    )
+    .join("");
 }
 
-/* =========================
-   MAIN LOAD FLOW
-========================= */
-async function loadProfile(username) {
-  if (!username) return;
-
-  clearError();
-  showLoader(true);
-
-  try {
-    const user = await cachedFetch(
-      `user_${username}`,
-      () => fetchUser(username)
-    );
-
-    const repos = await cachedFetch(
-      `repos_${username}`,
-      () => fetchRepos(username)
-    );
-
-    renderProfile(user);
-    renderStats(user, repos);
-    renderRepos(repos);
-    renderLanguageChart(repos);
-    renderStarsChart(repos);
-
-    saveHistory(username);
-    updateURL(username);
-  } catch (err) {
-    showError(err.message);
-  } finally {
-    showLoader(false);
-  }
-}
-
-/* =========================
+/* ===========================
    URL PARAM SUPPORT
-========================= */
+=========================== */
+
 function updateURL(username) {
   const url = new URL(window.location);
   url.searchParams.set("user", username);
-  window.history.pushState({}, "", url);
+  history.replaceState(null, "", url);
 }
 
 function loadFromURL() {
   const params = new URLSearchParams(window.location.search);
   const user = params.get("user");
+
   if (user) {
-    input.value = user;
-    loadProfile(user);
+    searchInput.value = user;
+    searchUser(user);
   }
 }
 
-/* =========================
-   EVENTS
-========================= */
-form.addEventListener("submit", e => {
-  e.preventDefault();
-  loadProfile(input.value.trim());
+/* ===========================
+   OFFLINE UX
+=========================== */
+
+window.addEventListener("offline", () => {
+  showError("You are offline. Showing cached data if available.");
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-  renderHistory();
-  loadFromURL();
-});
+/* ===========================
+   INIT
+=========================== */
+
+renderHistory();
+loadFromURL();
