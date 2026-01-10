@@ -1,129 +1,161 @@
-/* ===========================
-   DOM REFERENCES
-=========================== */
+/* =========================================================
+   ELEMENTS
+========================================================= */
 
-const searchInput = document.getElementById("usernameInput");
+const input = document.getElementById("usernameInput");
 const searchBtn = document.getElementById("searchBtn");
-const historyContainer = document.getElementById("history");
 
-/* ===========================
-   SEARCH HANDLER
-=========================== */
+/* =========================================================
+   STATE
+========================================================= */
 
-async function searchUser(username) {
-  if (!username) return;
+let searchHistory =
+  JSON.parse(localStorage.getItem("gh_history")) || [];
 
-  clearError();
+/* =========================================================
+   INIT
+========================================================= */
 
-  try {
-    // PROFILE
-    const user = await getUser(username);
-    renderProfile(user);
+document.addEventListener("DOMContentLoaded", () => {
+  ui.renderHistory(searchHistory);
+  handleURLQuery();
+  monitorOffline();
+});
 
-    // REPOS
-    const repos = await getRepos(username);
-    renderRepos(repos);
-
-    // TOTALS
-    const totals = await getRepoTotals(username);
-
-    // ACTIVITY
-    const activityScore = calculateActivityScore(user, repos);
-    renderStats(user, totals, activityScore);
-
-    // LANGUAGES
-    const languages = await getLanguageStats(username);
-    renderLanguageChart(languages);
-
-    // AI INSIGHTS
-    renderAIInsights(user, repos);
-
-    // SAVE HISTORY
-    saveHistory(username);
-
-    // UPDATE URL
-    updateURL(username);
-
-  } catch (err) {
-    showError(err.message || "Something went wrong");
-  }
-}
-
-/* ===========================
-   EVENTS
-=========================== */
+/* =========================================================
+   SEARCH HANDLERS
+========================================================= */
 
 searchBtn.addEventListener("click", () => {
-  searchUser(searchInput.value.trim());
+  startSearch(input.value.trim());
 });
 
-searchInput.addEventListener("keydown", e => {
+input.addEventListener("keydown", e => {
   if (e.key === "Enter") {
-    searchUser(searchInput.value.trim());
+    startSearch(input.value.trim());
   }
 });
 
-/* ===========================
-   SEARCH HISTORY
-=========================== */
+window.addEventListener("historySelect", e => {
+  startSearch(e.detail);
+});
+
+/* =========================================================
+   MAIN SEARCH FLOW
+========================================================= */
+
+async function startSearch(username) {
+  if (!username) {
+    ui.showError("Please enter a GitHub username.");
+    return;
+  }
+
+  ui.clearUI();
+  ui.showError("");
+
+  try {
+    const profile = await api.getUserProfile(username);
+    const repos = await api.getUserRepos(username);
+
+    saveHistory(username);
+
+    const repoStats = api.calculateRepoStats(repos);
+    const languages = api.calculateLanguages(repos);
+    const activityScore = api.calculateActivityScore(profile, repos);
+
+    ui.renderProfile(profile);
+    ui.renderStats(profile, repoStats, activityScore);
+    ui.renderRepos(repos);
+    renderLanguageChart(languages);
+    generateAIInsights(profile, repoStats, activityScore);
+  } catch (err) {
+    ui.showError(err.message);
+  }
+}
+
+/* =========================================================
+   HISTORY
+========================================================= */
 
 function saveHistory(username) {
-  let history = JSON.parse(localStorage.getItem("gh-history")) || [];
+  if (searchHistory.includes(username)) return;
 
-  history = history.filter(u => u !== username);
-  history.unshift(username);
-
-  if (history.length > 5) history.length = 5;
-
-  localStorage.setItem("gh-history", JSON.stringify(history));
-  renderHistory();
+  searchHistory.unshift(username);
+  searchHistory = searchHistory.slice(0, 5);
+  localStorage.setItem("gh_history", JSON.stringify(searchHistory));
+  ui.renderHistory(searchHistory);
 }
 
-function renderHistory() {
-  const history = JSON.parse(localStorage.getItem("gh-history")) || [];
+/* =========================================================
+   URL QUERY SUPPORT
+========================================================= */
 
-  historyContainer.innerHTML = history
-    .map(
-      user => `
-      <button class="ghost-btn" onclick="searchUser('${user}')">
-        ${user}
-      </button>
-    `
-    )
-    .join("");
-}
-
-/* ===========================
-   URL PARAM SUPPORT
-=========================== */
-
-function updateURL(username) {
-  const url = new URL(window.location);
-  url.searchParams.set("user", username);
-  history.replaceState(null, "", url);
-}
-
-function loadFromURL() {
+function handleURLQuery() {
   const params = new URLSearchParams(window.location.search);
   const user = params.get("user");
-
   if (user) {
-    searchInput.value = user;
-    searchUser(user);
+    input.value = user;
+    startSearch(user);
   }
 }
 
-/* ===========================
-   OFFLINE UX
-=========================== */
+/* =========================================================
+   OFFLINE MONITOR
+========================================================= */
 
-window.addEventListener("offline", () => {
-  showError("You are offline. Showing cached data if available.");
-});
+function monitorOffline() {
+  ui.toggleOffline(!navigator.onLine);
 
-/* ===========================
-   INIT
-=========================== */
+  window.addEventListener("online", () => {
+    ui.toggleOffline(false);
+  });
 
-renderHistory();
-loadFromURL();
+  window.addEventListener("offline", () => {
+    ui.toggleOffline(true);
+  });
+}
+
+/* =========================================================
+   AI INSIGHTS (CLIENT LOGIC)
+========================================================= */
+
+function generateAIInsights(profile, repoStats, score) {
+  const el = document.getElementById("aiInsights");
+
+  let insight = "This developer shows ";
+
+  if (score > 80) insight += "very high activity and strong engagement.";
+  else if (score > 40)
+    insight += "consistent activity with steady growth.";
+  else insight += "light but focused contribution patterns.";
+
+  insight += ` With ${repoStats.totalRepos} public repositories and ${profile.followers} followers, this profile demonstrates `;
+
+  insight +=
+    repoStats.totalStars > 100
+      ? "high community appreciation."
+      : "room for broader visibility.";
+
+  el.innerHTML = `
+    <h3>AI Insights</h3>
+    <p>${insight}</p>
+  `;
+}
+
+/* =========================================================
+   PDF EXPORT
+========================================================= */
+
+window.exportPDF = function () {
+  const app = document.getElementById("app");
+
+  const opt = {
+    margin: 0.4,
+    filename: "github-profile-report.pdf",
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: "in", format: "letter", orientation: "portrait" }
+  };
+
+  html2pdf().set(opt).from(app).save();
+};
