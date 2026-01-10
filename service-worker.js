@@ -1,31 +1,35 @@
-/* ===========================
-   SERVICE WORKER
-   GitHub Profile Analyzer
-=========================== */
+/* =========================================================
+   SERVICE WORKER — GITHUB ANALYZER
+   Strategy: Stale While Revalidate
+========================================================= */
 
 const CACHE_NAME = "github-analyzer-v1";
 
-/* STATIC ASSETS */
 const STATIC_ASSETS = [
   "/",
   "/index.html",
+  "/offline.html",
   "/compare.html",
+
   "/css/style.css",
 
   "/js/main.js",
   "/js/api.js",
   "/js/ui.js",
   "/js/charts.js",
-  "/js/theme.js",
   "/js/pwa.js",
+  "/js/compare.js",
+
+  "/manifest.json",
 
   "/assets/icons/icon-192.png",
   "/assets/icons/icon-512.png"
 ];
 
-/* ===========================
+/* =========================================================
    INSTALL
-=========================== */
+========================================================= */
+
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
@@ -35,73 +39,79 @@ self.addEventListener("install", event => {
   self.skipWaiting();
 });
 
-/* ===========================
+/* =========================================================
    ACTIVATE
-=========================== */
+========================================================= */
+
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys.map(key => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
+        keys
+          .filter(key => key !== CACHE_NAME)
+          .map(key => caches.delete(key))
       )
     )
   );
   self.clients.claim();
 });
 
-/* ===========================
-   FETCH
-   Stale-While-Revalidate
-=========================== */
-self.addEventListener("fetch", event => {
-  const { request } = event;
+/* =========================================================
+   FETCH — STALE WHILE REVALIDATE
+========================================================= */
 
-  // GitHub API requests
+self.addEventListener("fetch", event => {
+  const request = event.request;
+
+  // GitHub API — network first
   if (request.url.includes("api.github.com")) {
-    event.respondWith(staleWhileRevalidate(request));
+    event.respondWith(networkFirst(request));
     return;
   }
 
-  // Static assets
-  event.respondWith(
-    caches.match(request).then(cached => {
-      return cached || fetch(request);
-    })
-  );
+  // Static assets — cache first
+  event.respondWith(staleWhileRevalidate(request));
 });
 
-/* ===========================
-   STRATEGY
-=========================== */
+/* =========================================================
+   STRATEGIES
+========================================================= */
+
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(CACHE_NAME);
   const cached = await cache.match(request);
 
-  const networkFetch = fetch(request)
+  const fetchPromise = fetch(request)
     .then(response => {
-      cache.put(request, response.clone());
+      if (response && response.status === 200) {
+        cache.put(request, response.clone());
+      }
       return response;
     })
     .catch(() => cached);
 
-  return cached || networkFetch;
+  return cached || fetchPromise || caches.match("/offline.html");
 }
 
-/* ===========================
-   PUSH EVENTS
-=========================== */
-self.addEventListener("push", event => {
-  const data = event.data?.text() || "New GitHub update available";
+async function networkFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+  try {
+    const response = await fetch(request);
+    cache.put(request, response.clone());
+    return response;
+  } catch {
+    return cache.match(request);
+  }
+}
 
-  event.waitUntil(
-    self.registration.showNotification("GitHub Analyzer", {
-      body: data,
-      icon: "/assets/icons/icon-192.png",
-      badge: "/assets/icons/icon-96.png"
-    })
+/* =========================================================
+   FALLBACK
+========================================================= */
+
+self.addEventListener("fetch", event => {
+  event.respondWith(
+    fetch(event.request).catch(() =>
+      caches.match("/offline.html")
+    )
   );
 });
