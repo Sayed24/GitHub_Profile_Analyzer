@@ -2,11 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>GitHub Analytics Pro</title>
+  <title>GitHub Profile Analyzer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- SEO -->
-  <meta name="description" content="Advanced GitHub profile analytics with charts, insights, offline mode, and PWA support." />
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.json" />
@@ -21,21 +18,24 @@
 
 <body>
 
+<!-- OFFLINE BANNER -->
+<div id="offlineBanner" class="offline hidden">
+  You are offline — showing cached data if available
+</div>
+
+<!-- HEADER -->
 <header class="topbar">
   <div class="topbar-inner">
-    <h1>GitHub Analytics <span>Pro</span></h1>
+    <h1>GitHub <span>Analyzer</span></h1>
 
-    <div class="top-actions">
+    <div>
       <button id="installBtn" class="ghost-btn hidden">Install App</button>
-      <button id="notifyBtn" class="ghost-btn">Enable Alerts</button>
+      <button onclick="enablePushNotifications()" class="ghost-btn">
+        Enable Notifications
+      </button>
     </div>
   </div>
 </header>
-
-<!-- OFFLINE BANNER -->
-<div id="offlineBanner" class="offline hidden">
-  You are offline. Showing cached data.
-</div>
 
 <main class="container">
 
@@ -43,59 +43,57 @@
   <section class="card search-card">
     <input
       id="usernameInput"
-      type="text"
       placeholder="Enter GitHub username"
       autocomplete="off"
     />
     <button id="searchBtn">Analyze</button>
   </section>
 
+  <!-- HISTORY -->
+  <section id="history" class="card"></section>
+
+  <!-- ERROR -->
+  <section id="error"></section>
+
   <!-- PROFILE -->
-  <section id="profile" class="card hidden"></section>
+  <section id="profile" class="card"></section>
 
   <!-- STATS -->
-  <section id="stats" class="stats-grid hidden"></section>
+  <section id="stats"></section>
 
-  <!-- CHARTS -->
-  <section id="chartsSection" class="grid-2 hidden">
-    <div class="card">
-      <h3>Language Usage</h3>
-      <canvas id="languageChart"></canvas>
-    </div>
-    <div class="card">
-      <h3>Top Repositories</h3>
-      <canvas id="starsChart"></canvas>
-    </div>
+  <!-- LANGUAGES -->
+  <section class="card" style="height:320px">
+    <h3>Language Usage</h3>
+    <canvas id="languageChart"></canvas>
   </section>
 
-  <!-- CONTRIBUTIONS -->
-  <section id="contributions" class="card hidden"></section>
+  <!-- REPOS -->
+  <section>
+    <h3>Recent Repositories</h3>
+    <div id="repos" class="grid-2"></div>
+  </section>
 
   <!-- AI INSIGHTS -->
-  <section id="aiInsights" class="card hidden"></section>
+  <section class="card" id="aiInsights">
+    <h3>AI Insights</h3>
+  </section>
 
 </main>
 
 <footer>
-  <nav class="footer-nav">
+  <div class="footer-nav">
     <a href="compare.html">Compare Profiles</a>
-    <span>•</span>
-    <span>Offline & PWA Ready</span>
-  </nav>
+    <a href="https://github.com" target="_blank">GitHub</a>
+  </div>
+  <p>Built with GitHub API • PWA • Offline Ready</p>
 </footer>
 
-<!-- Scripts -->
+<!-- SCRIPTS (ORDER MATTERS) -->
 <script src="js/api.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/charts.js"></script>
-<script src="js/app.js"></script>
+<script src="js/main.js"></script>
 <script src="js/pwa.js"></script>
-
-<script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js");
-  }
-</script>
 
 </body>
 </html>
