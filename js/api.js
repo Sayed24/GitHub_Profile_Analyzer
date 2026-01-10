@@ -1,157 +1,125 @@
-/* =========================
-   GitHub Analytics Pro
-   API + Cache + Optimization
-   ========================= */
+/* ===========================
+   API CONFIG
+=========================== */
 
 const API_BASE = "https://api.github.com";
-const CACHE_TTL = 1000 * 60 * 10; // 10 minutes
 
-// Optional token (DO NOT COMMIT REAL TOKEN)
-const GITHUB_TOKEN = "";
+/*
+  OPTIONAL:
+  Add your GitHub token for higher rate limits.
+  This is SAFE for public demos but optional.
+*/
+const GITHUB_TOKEN = ""; // <-- optional
 
-/* =========================
-   Headers
-   ========================= */
+const headers = {
+  Accept: "application/vnd.github+json"
+};
 
-function getHeaders() {
-  const headers = {
-    Accept: "application/vnd.github+json"
-  };
-
-  if (GITHUB_TOKEN) {
-    headers.Authorization = `Bearer ${GITHUB_TOKEN}`;
-  }
-
-  return headers;
+if (GITHUB_TOKEN) {
+  headers.Authorization = `token ${GITHUB_TOKEN}`;
 }
 
-/* =========================
-   Cache Helpers
-   ========================= */
+/* ===========================
+   GENERIC FETCH
+=========================== */
 
-function getCache(key) {
-  const cached = localStorage.getItem(key);
-  if (!cached) return null;
+async function apiFetch(url) {
+  const res = await fetch(url, { headers });
 
-  const parsed = JSON.parse(cached);
-  if (Date.now() - parsed.time > CACHE_TTL) {
-    localStorage.removeItem(key);
-    return null;
-  }
-  return parsed.data;
+  if (res.status === 404) throw new Error("User not found");
+  if (res.status === 403) throw new Error("API rate limit exceeded");
+  if (!res.ok) throw new Error("GitHub API error");
+
+  return res.json();
 }
 
-function setCache(key, data) {
-  localStorage.setItem(
-    key,
-    JSON.stringify({
-      time: Date.now(),
-      data
-    })
-  );
-}
-
-/* =========================
-   Fetch Wrapper
-   ========================= */
-
-async function fetchWithCache(url, cacheKey) {
-  const cached = getCache(cacheKey);
-  if (cached) return cached;
-
-  const res = await fetch(url, {
-    headers: getHeaders()
-  });
-
-  if (!res.ok) {
-    throw new Error(`GitHub API error: ${res.status}`);
-  }
-
-  const data = await res.json();
-  setCache(cacheKey, data);
-  return data;
-}
-
-/* =========================
-   API Methods
-   ========================= */
+/* ===========================
+   USER DATA
+=========================== */
 
 async function getUser(username) {
-  return fetchWithCache(
-    `${API_BASE}/users/${username}`,
-    `user_${username}`
-  );
+  return apiFetch(`${API_BASE}/users/${username}`);
 }
+
+/* ===========================
+   REPOSITORIES
+=========================== */
 
 async function getRepos(username) {
-  return fetchWithCache(
-    `${API_BASE}/users/${username}/repos?per_page=100&sort=updated`,
-    `repos_${username}`
+  return apiFetch(
+    `${API_BASE}/users/${username}/repos?per_page=100&sort=updated`
   );
 }
 
-/* =========================
-   Language Aggregation
-   ========================= */
+/* ===========================
+   LANGUAGE STATS
+=========================== */
 
-function calculateLanguages(repos) {
-  const map = {};
+async function getLanguageStats(username) {
+  const repos = await getRepos(username);
+  const totals = {};
+
   repos.forEach(repo => {
-    if (repo.language) {
-      map[repo.language] = (map[repo.language] || 0) + 1;
-    }
+    if (!repo.language) return;
+    totals[repo.language] = (totals[repo.language] || 0) + 1;
   });
-  return map;
+
+  return totals;
 }
 
-/* =========================
-   Repo Metrics
-   ========================= */
+/* ===========================
+   STAR & FORK TOTALS
+=========================== */
 
-function calculateRepoStats(repos) {
-  let stars = 0;
-  let forks = 0;
+async function getRepoTotals(username) {
+  const repos = await getRepos(username);
 
-  repos.forEach(repo => {
-    stars += repo.stargazers_count;
-    forks += repo.forks_count;
-  });
-
-  const mostStarred = repos.reduce(
-    (max, r) => (r.stargazers_count > max.stargazers_count ? r : max),
-    repos[0] || {}
+  return repos.reduce(
+    (acc, repo) => {
+      acc.stars += repo.stargazers_count;
+      acc.forks += repo.forks_count;
+      return acc;
+    },
+    { stars: 0, forks: 0 }
   );
-
-  return {
-    stars,
-    forks,
-    mostStarred
-  };
 }
 
-/* =========================
-   Contribution Graph Hook
-   (Serverless-ready)
-   ========================= */
+/* ===========================
+   MOST STARRED REPO
+=========================== */
 
-async function getContributions(username) {
-  /*
-    Real scraping must be done server-side.
-    This function expects a serverless endpoint later.
-  */
-
-  try {
-    const res = await fetch(
-      `https://your-serverless-endpoint.vercel.app/contributions?user=${username}`
-    );
-
-    if (!res.ok) throw new Error("Contribution fetch failed");
-
-    return await res.json();
-  } catch (err) {
-    // Fallback dummy data (offline / demo)
-    return Array.from({ length: 140 }, () =>
-      Math.random() > 0.7
-    );
-  }
+async function getTopRepo(username) {
+  const repos = await getRepos(username);
+  return repos.sort(
+    (a, b) => b.stargazers_count - a.stargazers_count
+  )[0];
 }
+
+/* ===========================
+   ACTIVITY SCORE (CUSTOM)
+=========================== */
+
+function calculateActivityScore(user, repos) {
+  const years =
+    (Date.now() - new Date(user.created_at)) /
+    (1000 * 60 * 60 * 24 * 365);
+
+  const repoRate = repos.length / Math.max(years, 1);
+  const score =
+    repoRate * 10 +
+    user.followers * 0.5 +
+    repos.reduce((s, r) => s + r.stargazers_count, 0) * 0.2;
+
+  return Math.round(score);
+}
+
+/* ===========================
+   EXPORTS
+=========================== */
+
+window.getUser = getUser;
+window.getRepos = getRepos;
+window.getLanguageStats = getLanguageStats;
+window.getRepoTotals = getRepoTotals;
+window.getTopRepo = getTopRepo;
+window.calculateActivityScore = calculateActivityScore;
