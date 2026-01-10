@@ -1,8 +1,8 @@
 {
-  "name": "GitHub Analytics Pro",
-  "short_name": "GitHub Pro",
-  "description": "Advanced GitHub profile analytics with charts, insights, offline mode, and comparison.",
-  "start_url": "./index.html",
+  "name": "GitHub Profile Analyzer",
+  "short_name": "GitHub Analyzer",
+  "description": "Analyze GitHub profiles with stats, charts, AI insights, offline mode, and comparison.",
+  "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#0d1117",
   "theme_color": "#0d1117",
