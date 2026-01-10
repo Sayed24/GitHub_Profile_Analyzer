@@ -3,24 +3,34 @@
 <head>
   <meta charset="utf-8" />
   <title>GitHub Profile Analyzer</title>
+
+  <meta name="description" content="Professional GitHub profile analyzer with stats, charts, AI insights, offline mode, and PWA support." />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0d1117" />
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#0d1117" />
+
+  <!-- Performance -->
+  <link rel="preconnect" href="https://api.github.com" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+
+  <!-- Icons -->
+  <link rel="icon" href="assets/icons/icon-192.png" />
 
   <!-- Styles -->
   <link rel="stylesheet" href="css/style.css" />
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Libraries -->
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 
 <body>
 
-<!-- OFFLINE BANNER -->
+<!-- OFFLINE INDICATOR -->
 <div id="offlineBanner" class="offline hidden">
-  You are offline — showing cached data if available
+  You are offline. Cached data is shown.
 </div>
 
 <!-- HEADER -->
@@ -28,67 +38,70 @@
   <div class="topbar-inner">
     <h1>GitHub <span>Analyzer</span></h1>
 
-    <div>
-      <button id="installBtn" class="ghost-btn hidden">Install App</button>
-      <button onclick="enablePushNotifications()" class="ghost-btn">
-        Enable Notifications
-      </button>
+    <div class="top-actions">
+      <button id="installBtn" class="ghost-btn hidden">Install</button>
+      <button onclick="enablePushNotifications()" class="ghost-btn">🔔</button>
+      <button onclick="exportPDF()" class="ghost-btn">📄 Export</button>
     </div>
   </div>
 </header>
 
-<main class="container">
+<!-- MAIN APP -->
+<main class="container" id="app">
 
   <!-- SEARCH -->
   <section class="card search-card">
     <input
       id="usernameInput"
+      type="text"
       placeholder="Enter GitHub username"
       autocomplete="off"
     />
     <button id="searchBtn">Analyze</button>
   </section>
 
-  <!-- HISTORY -->
-  <section id="history" class="card"></section>
+  <!-- SEARCH HISTORY -->
+  <section id="history" class="history"></section>
 
   <!-- ERROR -->
-  <section id="error"></section>
+  <section id="error" class="error"></section>
 
   <!-- PROFILE -->
   <section id="profile" class="card"></section>
 
   <!-- STATS -->
-  <section id="stats"></section>
+  <section id="stats" class="stats-grid"></section>
 
-  <!-- LANGUAGES -->
-  <section class="card" style="height:320px">
+  <!-- LANGUAGE CHART -->
+  <section class="card chart-card">
     <h3>Language Usage</h3>
     <canvas id="languageChart"></canvas>
   </section>
 
-  <!-- REPOS -->
+  <!-- REPOSITORIES -->
   <section>
-    <h3>Recent Repositories</h3>
+    <h3>Repositories</h3>
     <div id="repos" class="grid-2"></div>
   </section>
 
   <!-- AI INSIGHTS -->
-  <section class="card" id="aiInsights">
+  <section id="aiInsights" class="card">
     <h3>AI Insights</h3>
+    <p class="muted">Insights will appear after analysis.</p>
   </section>
 
 </main>
 
+<!-- FOOTER -->
 <footer>
-  <div class="footer-nav">
+  <nav class="footer-nav">
     <a href="compare.html">Compare Profiles</a>
-    <a href="https://github.com" target="_blank">GitHub</a>
-  </div>
-  <p>Built with GitHub API • PWA • Offline Ready</p>
+    <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+  </nav>
+  <p>Offline • PWA • Lighthouse Optimized</p>
 </footer>
 
-<!-- SCRIPTS (ORDER MATTERS) -->
+<!-- SCRIPTS -->
 <script src="js/api.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/charts.js"></script>
