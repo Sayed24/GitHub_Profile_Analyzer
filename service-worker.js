@@ -1,54 +1,42 @@
-/* =========================================================
-   SERVICE WORKER — GITHUB ANALYZER
-   Strategy: Stale While Revalidate
-========================================================= */
+/* ======================================
+   SERVICE WORKER — GitHub Profile Analyzer
+====================================== */
 
-const CACHE_NAME = "github-analyzer-v1";
+const CACHE_NAME = "gh-analyzer-v1";
+const API_CACHE = "gh-api-cache-v1";
 
 const STATIC_ASSETS = [
   "/",
   "/index.html",
-  "/offline.html",
-  "/compare.html",
-
-  "/css/style.css",
-
-  "/js/main.js",
-  "/js/api.js",
+  "/css/styles.css",
+  "/js/app.js",
   "/js/ui.js",
+  "/js/api.js",
   "/js/charts.js",
-  "/js/pwa.js",
-  "/js/compare.js",
-
-  "/manifest.json",
-
+  "/js/theme.js",
   "/assets/icons/icon-192.png",
   "/assets/icons/icon-512.png"
 ];
 
-/* =========================================================
+/* ======================================
    INSTALL
-========================================================= */
-
+====================================== */
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(STATIC_ASSETS);
-    })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
   );
   self.skipWaiting();
 });
 
-/* =========================================================
+/* ======================================
    ACTIVATE
-========================================================= */
-
+====================================== */
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
         keys
-          .filter(key => key !== CACHE_NAME)
+          .filter(key => key !== CACHE_NAME && key !== API_CACHE)
           .map(key => caches.delete(key))
       )
     )
@@ -56,62 +44,75 @@ self.addEventListener("activate", event => {
   self.clients.claim();
 });
 
-/* =========================================================
+/* ======================================
    FETCH — STALE WHILE REVALIDATE
-========================================================= */
-
+====================================== */
 self.addEventListener("fetch", event => {
-  const request = event.request;
+  const { request } = event;
 
-  // GitHub API — network first
+  /* GitHub API requests */
   if (request.url.includes("api.github.com")) {
-    event.respondWith(networkFirst(request));
+    event.respondWith(apiCacheStrategy(request));
     return;
   }
 
-  // Static assets — cache first
-  event.respondWith(staleWhileRevalidate(request));
+  /* Static assets */
+  event.respondWith(
+    caches.match(request).then(cached => {
+      return (
+        cached ||
+        fetch(request).then(response => {
+          return caches.open(CACHE_NAME).then(cache => {
+            cache.put(request, response.clone());
+            return response;
+          });
+        })
+      );
+    })
+  );
 });
 
-/* =========================================================
-   STRATEGIES
-========================================================= */
-
-async function staleWhileRevalidate(request) {
-  const cache = await caches.open(CACHE_NAME);
+/* ======================================
+   API CACHE STRATEGY
+====================================== */
+async function apiCacheStrategy(request) {
+  const cache = await caches.open(API_CACHE);
   const cached = await cache.match(request);
 
   const fetchPromise = fetch(request)
     .then(response => {
-      if (response && response.status === 200) {
-        cache.put(request, response.clone());
-      }
+      cache.put(request, response.clone());
       return response;
     })
     .catch(() => cached);
 
-  return cached || fetchPromise || caches.match("/offline.html");
+  return cached || fetchPromise;
 }
 
-async function networkFirst(request) {
-  const cache = await caches.open(CACHE_NAME);
-  try {
-    const response = await fetch(request);
-    cache.put(request, response.clone());
-    return response;
-  } catch {
-    return cache.match(request);
-  }
-}
+/* ======================================
+   PUSH NOTIFICATIONS (READY)
+====================================== */
+self.addEventListener("push", event => {
+  const data = event.data ? event.data.json() : {};
 
-/* =========================================================
-   FALLBACK
-========================================================= */
+  const title = data.title || "GitHub Analyzer";
+  const options = {
+    body: data.body || "New update available",
+    icon: "/assets/icons/icon-192.png",
+    badge: "/assets/icons/icon-192.png"
+  };
 
-self.addEventListener("fetch", event => {
-  event.respondWith(
-    fetch(event.request).catch(() =>
-      caches.match("/offline.html")
-    )
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
+});
+
+/* ======================================
+   NOTIFICATION CLICK
+====================================== */
+self.addEventListener("notificationclick", event => {
+  event.notification.close();
+  event.waitUntil(
+    clients.openWindow("/")
   );
 });
