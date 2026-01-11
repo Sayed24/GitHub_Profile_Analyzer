@@ -1,158 +1,158 @@
-/* =========================================================
-   ELEMENT REFERENCES
-========================================================= */
+/* ===============================
+   DOM REFERENCES
+================================ */
+const app = document.getElementById("app");
+const loader = document.getElementById("loader");
 
-const profileEl = document.getElementById("profile");
-const statsEl = document.getElementById("stats");
-const reposEl = document.getElementById("repos");
-const errorEl = document.getElementById("error");
-const historyEl = document.getElementById("history");
-const offlineBanner = document.getElementById("offlineBanner");
-
-/* =========================================================
-   UTILITIES
-========================================================= */
-
-function clearUI() {
-  profileEl.innerHTML = "";
-  statsEl.innerHTML = "";
-  reposEl.innerHTML = "";
-  errorEl.textContent = "";
+/* ===============================
+   LOADER
+================================ */
+function showLoader() {
+  if (loader) loader.style.display = "flex";
 }
 
-function showError(message) {
-  errorEl.textContent = message;
+function hideLoader() {
+  if (loader) loader.style.display = "none";
 }
 
-function toggleOffline(isOffline) {
-  offlineBanner.classList.toggle("hidden", !isOffline);
+/* ===============================
+   CLEAR UI
+================================ */
+function clearApp() {
+  app.innerHTML = "";
 }
 
-/* =========================================================
-   PROFILE RENDER
-========================================================= */
+/* ===============================
+   PROFILE HEADER
+================================ */
+function renderProfileHeader(user, score) {
+  const header = document.createElement("section");
+  header.className = "profile-header";
 
-function renderProfile(profile) {
-  profileEl.innerHTML = `
-    <div class="profile-header">
-      <img src="${profile.avatar_url}" alt="Avatar" />
-      <div>
-        <h2>${profile.name || profile.login}</h2>
-        <p class="muted">@${profile.login}</p>
-        ${profile.bio ? `<p>${profile.bio}</p>` : ""}
-        <div class="profile-meta">
-          ${profile.location ? `📍 ${profile.location}` : ""}
-          ${profile.company ? `🏢 ${profile.company}` : ""}
-          ${
-            profile.blog
-              ? `🔗 <a href="${profile.blog}" target="_blank">${profile.blog}</a>`
-              : ""
-          }
-        </div>
+  header.innerHTML = `
+    <div class="profile-avatar">
+      <img src="${user.avatar_url}" alt="${user.login}" />
+    </div>
+
+    <div class="profile-meta">
+      <h2>${user.name || user.login}</h2>
+      <p class="username">@${user.login}</p>
+      <p class="bio">${user.bio || "No bio provided."}</p>
+
+      <div class="stats">
+        <span>👥 ${user.followers} Followers</span>
+        <span>📦 ${user.public_repos} Repos</span>
+        <span>⭐ Score: ${score}/100</span>
       </div>
     </div>
   `;
+
+  app.appendChild(header);
 }
 
-/* =========================================================
-   STATS RENDER (ANIMATED)
-========================================================= */
+/* ===============================
+   AI INSIGHTS CARD
+   (FIXED overflow & responsive)
+================================ */
+function renderAIInsights(text) {
+  const section = document.createElement("section");
+  section.className = "card ai-card";
 
-function animateCounter(el, value) {
-  let start = 0;
-  const duration = 600;
-  const step = Math.max(1, value / (duration / 16));
+  section.innerHTML = `
+    <h3>🧠 AI Insights</h3>
+    <p>${text}</p>
+  `;
 
-  function update() {
-    start += step;
-    if (start >= value) {
-      el.textContent = value;
-    } else {
-      el.textContent = Math.floor(start);
-      requestAnimationFrame(update);
-    }
-  }
-  update();
+  app.appendChild(section);
 }
 
-function renderStats(profile, repoStats, activityScore) {
-  statsEl.innerHTML = "";
+/* ===============================
+   REPOSITORY GRID
+   (Perfect spacing & wrapping)
+================================ */
+function renderRepositories(repos) {
+  const section = document.createElement("section");
+  section.className = "repo-section";
 
-  const stats = [
-    ["Followers", profile.followers],
-    ["Following", profile.following],
-    ["Public Repos", repoStats.totalRepos],
-    ["Stars", repoStats.totalStars],
-    ["Forks", repoStats.totalForks],
-    ["Activity Score", activityScore]
-  ];
+  section.innerHTML = `<h3>📂 Repositories</h3>`;
 
-  stats.forEach(([label, value]) => {
-    const stat = document.createElement("div");
-    stat.className = "stat";
-    stat.innerHTML = `<h4>${label}</h4><span>0</span>`;
-    statsEl.appendChild(stat);
-    animateCounter(stat.querySelector("span"), value);
-  });
-}
+  const grid = document.createElement("div");
+  grid.className = "repo-grid";
 
-/* =========================================================
-   REPOS RENDER
-========================================================= */
+  repos.forEach(repo => {
+    const card = document.createElement("div");
+    card.className = "repo-card";
 
-function renderRepos(repos) {
-  reposEl.innerHTML = "";
-
-  if (!repos.length) {
-    reposEl.innerHTML =
-      `<p class="muted">No public repositories found.</p>`;
-    return;
-  }
-
-  repos.slice(0, 10).forEach(repo => {
-    const div = document.createElement("div");
-    div.className = "repo";
-    div.innerHTML = `
+    card.innerHTML = `
       <h4>${repo.name}</h4>
-      <p>${repo.description || "No description"}</p>
-      <div class="meta">
+      <p>${repo.description || "No description."}</p>
+      <div class="repo-meta">
         <span>⭐ ${repo.stargazers_count}</span>
         <span>🍴 ${repo.forks_count}</span>
         <span>${repo.language || "N/A"}</span>
       </div>
     `;
-    reposEl.appendChild(div);
+
+    grid.appendChild(card);
   });
+
+  section.appendChild(grid);
+  app.appendChild(section);
 }
 
-/* =========================================================
-   SEARCH HISTORY
-========================================================= */
+/* ===============================
+   PROFILE PAGE RENDER
+================================ */
+function renderProfile(data) {
+  clearApp();
+  hideLoader();
 
-function renderHistory(items) {
-  historyEl.innerHTML = "";
-
-  items.forEach(user => {
-    const btn = document.createElement("button");
-    btn.textContent = user;
-    btn.onclick = () =>
-      window.dispatchEvent(
-        new CustomEvent("historySelect", { detail: user })
-      );
-    historyEl.appendChild(btn);
-  });
+  renderProfileHeader(data.user, data.aiScore);
+  renderAIInsights(data.insights);
+  renderRepositories(data.repos);
 }
 
-/* =========================================================
-   EXPORT
-========================================================= */
+/* ===============================
+   COMPARISON VIEW
+================================ */
+function renderComparison(left, right) {
+  clearApp();
+  hideLoader();
 
-window.ui = {
-  clearUI,
-  showError,
-  renderProfile,
-  renderStats,
-  renderRepos,
-  renderHistory,
-  toggleOffline
-};
+  const wrapper = document.createElement("section");
+  wrapper.className = "compare-wrapper";
+
+  wrapper.innerHTML = `
+    <div class="compare-col">
+      <h3>${left.user.login}</h3>
+      <p>Score: ${left.aiScore}</p>
+      <p>${left.insights}</p>
+    </div>
+
+    <div class="compare-col">
+      <h3>${right.user.login}</h3>
+      <p>Score: ${right.aiScore}</p>
+      <p>${right.insights}</p>
+    </div>
+  `;
+
+  app.appendChild(wrapper);
+}
+
+/* ===============================
+   ERROR UI
+================================ */
+function renderError(message) {
+  hideLoader();
+  clearApp();
+
+  const error = document.createElement("div");
+  error.className = "error";
+
+  error.innerHTML = `
+    <h3>⚠️ Error</h3>
+    <p>${message}</p>
+  `;
+
+  app.appendChild(error);
+}
