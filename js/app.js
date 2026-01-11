@@ -1,86 +1,146 @@
-/* =========================
-   Main App Controller
-   ========================= */
-
-const input = document.getElementById("usernameInput");
-const button = document.getElementById("searchBtn");
-
-const profileEl = document.getElementById("profile");
-const statsEl = document.getElementById("stats");
-const chartsSection = document.getElementById("chartsSection");
-const contributionsEl = document.getElementById("contributions");
-const insightsEl = document.getElementById("aiInsights");
-
-/* ---------- Events ---------- */
-
-button.addEventListener("click", () => {
-  const username = input.value.trim();
-  if (username) loadUser(username);
+/* ======================================
+   APP ENTRY POINT
+====================================== */
+document.addEventListener("DOMContentLoaded", () => {
+  initApp();
 });
 
-input.addEventListener("keydown", e => {
-  if (e.key === "Enter") {
-    button.click();
+/* ======================================
+   GLOBAL STATE
+====================================== */
+let currentUser = null;
+let compareUser = null;
+
+/* ======================================
+   INIT
+====================================== */
+function initApp() {
+  bindUIEvents();
+  handleRouting();
+}
+
+/* ======================================
+   UI EVENTS
+====================================== */
+function bindUIEvents() {
+  const searchForm = document.getElementById("search-form");
+  const compareBtn = document.getElementById("compare-btn");
+  const logo = document.getElementById("logo");
+
+  if (searchForm) {
+    searchForm.addEventListener("submit", e => {
+      e.preventDefault();
+      const username = document.getElementById("username-input").value.trim();
+      if (!username) return;
+      navigateToProfile(username);
+    });
   }
-});
 
-/* ---------- Core Logic ---------- */
+  if (compareBtn) {
+    compareBtn.addEventListener("click", () => {
+      const secondUser = prompt("Enter second GitHub username");
+      if (!secondUser) return;
+      navigateToCompare(currentUser, secondUser);
+    });
+  }
 
-async function loadUser(username) {
-  resetUI();
-  showLoading();
+  /* CLICKABLE LOGO → DASHBOARD RESET */
+  if (logo) {
+    logo.addEventListener("click", () => {
+      window.history.pushState({}, "", "/");
+      resetDashboard();
+    });
+  }
 
+  /* BROWSER NAV */
+  window.addEventListener("popstate", handleRouting);
+}
+
+/* ======================================
+   ROUTING
+====================================== */
+function handleRouting() {
+  const params = new URLSearchParams(window.location.search);
+
+  if (params.has("user") && params.has("compare")) {
+    loadComparison(
+      params.get("user"),
+      params.get("compare")
+    );
+    return;
+  }
+
+  if (params.has("user")) {
+    loadProfile(params.get("user"));
+    return;
+  }
+
+  resetDashboard();
+}
+
+/* ======================================
+   NAVIGATION HELPERS
+====================================== */
+function navigateToProfile(username) {
+  window.history.pushState({}, "", `?user=${username}`);
+  loadProfile(username);
+}
+
+function navigateToCompare(userA, userB) {
+  window.history.pushState(
+    {},
+    "",
+    `?user=${userA}&compare=${userB}`
+  );
+  loadComparison(userA, userB);
+}
+
+/* ======================================
+   LOAD PROFILE
+====================================== */
+async function loadProfile(username) {
   try {
-    const user = await getUser(username);
-    const repos = await getRepos(username);
+    showLoader();
+    currentUser = username;
 
-    renderProfile(user);
-
-    const repoStats = calculateRepoStats(repos);
-    renderStats(user, repoStats);
-
-    const languages = calculateLanguages(repos);
-    renderLanguageChart(languages);
-    renderStarsChart(repos);
-    show(chartsSection);
-
-    const contributions = await getContributions(username);
-    renderContributions(contributions);
-
-    renderInsights(user, repos);
+    const data = await getFullProfile(username);
+    renderProfile(data);
   } catch (err) {
-    showError(err.message);
-  } finally {
-    hideLoading();
+    renderError(err.message || "Failed to load profile");
   }
 }
 
-/* ---------- UI States ---------- */
+/* ======================================
+   LOAD COMPARISON
+====================================== */
+async function loadComparison(userA, userB) {
+  try {
+    showLoader();
 
-function resetUI() {
-  hide(profileEl);
-  hide(statsEl);
-  hide(chartsSection);
-  hide(contributionsEl);
-  hide(insightsEl);
+    const [left, right] = await Promise.all([
+      getFullProfile(userA),
+      getFullProfile(userB)
+    ]);
+
+    renderComparison(left, right);
+  } catch (err) {
+    renderError("Comparison failed");
+  }
 }
 
-function showLoading() {
-  button.textContent = "Analyzing...";
-  button.disabled = true;
+/* ======================================
+   RESET DASHBOARD
+====================================== */
+function resetDashboard() {
+  clearApp();
+
+  const welcome = document.createElement("section");
+  welcome.className = "welcome";
+
+  welcome.innerHTML = `
+    <h2>GitHub Profile Analyzer</h2>
+    <p>Search a GitHub username to analyze profile insights, repos, activity & AI score.</p>
+  `;
+
+  app.appendChild(welcome);
 }
-
-function hideLoading() {
-  button.textContent = "Analyze";
-  button.disabled = false;
-}
-
-function showError(msg) {
-  alert(msg || "Something went wrong. Try again.");
-}
-
-/* ---------- Offline Indicator ---------- */
-
-window.addEventListener("offline", () => {
-  alert("You are offline. Showing cached data if available.");
-});
