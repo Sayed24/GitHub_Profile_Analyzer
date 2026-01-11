@@ -1,142 +1,122 @@
-/* =========================================================
+/* ===============================
    API CONFIG
-========================================================= */
+================================ */
+const GITHUB_API = "https://api.github.com/users";
 
-const GITHUB_API = "https://api.github.com";
-const CACHE_TTL = 1000 * 60 * 30; // 30 minutes
-
-// OPTIONAL: add your token for higher rate limits
-// const GITHUB_TOKEN = "ghp_xxx";
-
-/* =========================================================
-   GENERIC FETCH WITH CACHE + RATE LIMIT
-========================================================= */
-
-async function fetchWithCache(url, cacheKey) {
-  const cached = localStorage.getItem(cacheKey);
-
-  if (cached) {
-    const { data, timestamp } = JSON.parse(cached);
-    if (Date.now() - timestamp < CACHE_TTL) {
-      return data;
+/* ===============================
+   GLOBAL HELPERS
+================================ */
+async function safeFetch(url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`GitHub API Error: ${res.status}`);
     }
+    return await res.json();
+  } catch (err) {
+    console.error(err);
+    throw err;
   }
+}
 
-  const headers = {};
-  if (typeof GITHUB_TOKEN !== "undefined") {
-    headers.Authorization = `token ${GITHUB_TOKEN}`;
-  }
+/* ===============================
+   USER PROFILE
+================================ */
+async function fetchUser(username) {
+  return await safeFetch(`${GITHUB_API}/${username}`);
+}
 
-  const res = await fetch(url, { headers });
+/* ===============================
+   USER REPOSITORIES
+================================ */
+async function fetchRepos(username) {
+  return await safeFetch(`${GITHUB_API}/${username}/repos?per_page=100`);
+}
 
-  if (res.status === 403) {
-    throw new Error("API rate limit exceeded");
-  }
+/* ===============================
+   AI SCORING ENGINE
+   (Expandable – deterministic)
+================================ */
+function calculateAIScore(user, repos) {
+  let score = 0;
 
-  if (!res.ok) {
-    throw new Error("GitHub user not found");
-  }
+  score += Math.min(user.followers * 0.4, 30);
+  score += Math.min(user.public_repos * 0.8, 25);
 
-  const data = await res.json();
-
-  localStorage.setItem(
-    cacheKey,
-    JSON.stringify({ data, timestamp: Date.now() })
+  const totalStars = repos.reduce(
+    (sum, repo) => sum + repo.stargazers_count,
+    0
   );
 
-  return data;
+  score += Math.min(totalStars * 0.2, 25);
+
+  if (user.bio) score += 5;
+  if (user.blog) score += 5;
+  if (user.twitter_username) score += 5;
+
+  return Math.round(Math.min(score, 100));
 }
 
-/* =========================================================
-   FETCH USER PROFILE
-========================================================= */
+/* ===============================
+   AI INSIGHT GENERATOR
+================================ */
+function generateAIInsights(user, repos) {
+  const insights = [];
 
-async function getUserProfile(username) {
-  return fetchWithCache(
-    `${GITHUB_API}/users/${username}`,
-    `profile_${username}`
-  );
+  if (user.followers > 1000)
+    insights.push("Strong community influence with high follower count.");
+
+  if (user.public_repos > 20)
+    insights.push("Highly active developer with many repositories.");
+
+  const forked = repos.filter(r => r.fork).length;
+  if (forked > repos.length / 2)
+    insights.push("Most projects are forks — originality could improve.");
+
+  const stars = repos.reduce((s, r) => s + r.stargazers_count, 0);
+  if (stars > 500)
+    insights.push("Projects receive solid community appreciation.");
+
+  if (!user.bio)
+    insights.push("Adding a bio would strengthen your profile.");
+
+  if (!insights.length)
+    insights.push("Balanced profile with steady activity.");
+
+  return insights.join(" ");
 }
 
-/* =========================================================
-   FETCH USER REPOS
-========================================================= */
+/* ===============================
+   FULL PROFILE LOAD
+================================ */
+async function loadFullProfile(username) {
+  const [user, repos] = await Promise.all([
+    fetchUser(username),
+    fetchRepos(username),
+  ]);
 
-async function getUserRepos(username) {
-  return fetchWithCache(
-    `${GITHUB_API}/users/${username}/repos?per_page=100&sort=updated`,
-    `repos_${username}`
-  );
-}
-
-/* =========================================================
-   LANGUAGE AGGREGATION
-========================================================= */
-
-function calculateLanguages(repos) {
-  const languages = {};
-
-  repos.forEach(repo => {
-    if (!repo.language) return;
-    languages[repo.language] =
-      (languages[repo.language] || 0) + 1;
-  });
-
-  return languages;
-}
-
-/* =========================================================
-   REPOSITORY STATISTICS
-========================================================= */
-
-function calculateRepoStats(repos) {
-  let stars = 0;
-  let forks = 0;
-  let mostStarred = null;
-
-  repos.forEach(repo => {
-    stars += repo.stargazers_count;
-    forks += repo.forks_count;
-
-    if (
-      !mostStarred ||
-      repo.stargazers_count > mostStarred.stargazers_count
-    ) {
-      mostStarred = repo;
-    }
-  });
+  const aiScore = calculateAIScore(user, repos);
+  const insights = generateAIInsights(user, repos);
 
   return {
-    totalRepos: repos.length,
-    totalStars: stars,
-    totalForks: forks,
-    mostStarred
+    user,
+    repos,
+    aiScore,
+    insights,
   };
 }
 
-/* =========================================================
-   ACTIVITY SCORE (CUSTOM LOGIC)
-========================================================= */
+/* ===============================
+   COMPARISON LOGIC
+================================ */
+async function compareUsers(userA, userB) {
+  const [a, b] = await Promise.all([
+    loadFullProfile(userA),
+    loadFullProfile(userB),
+  ]);
 
-function calculateActivityScore(profile, repos) {
-  const years =
-    (Date.now() - new Date(profile.created_at)) /
-    (1000 * 60 * 60 * 24 * 365);
-
-  const repoRate = repos.length / Math.max(years, 1);
-  const followerWeight = profile.followers * 0.2;
-
-  return Math.round(repoRate * 10 + followerWeight);
+  return {
+    left: a,
+    right: b,
+  };
 }
-
-/* =========================================================
-   EXPORT
-========================================================= */
-
-window.api = {
-  getUserProfile,
-  getUserRepos,
-  calculateLanguages,
-  calculateRepoStats,
-  calculateActivityScore
-};
