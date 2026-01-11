@@ -1,122 +1,92 @@
-/* ===============================
-   API CONFIG
-================================ */
+/* ======================================
+   GITHUB API CONFIG
+====================================== */
 const GITHUB_API = "https://api.github.com/users";
 
-/* ===============================
-   GLOBAL HELPERS
-================================ */
-async function safeFetch(url) {
-  try {
-    const res = await fetch(url);
-    if (!res.ok) {
-      throw new Error(`GitHub API Error: ${res.status}`);
-    }
-    return await res.json();
-  } catch (err) {
-    console.error(err);
-    throw err;
+/* OPTIONAL: Add token to avoid rate limits
+   const TOKEN = "YOUR_GITHUB_TOKEN";
+*/
+
+const headers = {
+  Accept: "application/vnd.github+json"
+  // Authorization: `token ${TOKEN}`
+};
+
+/* ======================================
+   MAIN DATA FETCHER
+====================================== */
+async function getFullProfile(username) {
+  if (!username) {
+    throw new Error("Username is required");
   }
-}
 
-/* ===============================
-   USER PROFILE
-================================ */
-async function fetchUser(username) {
-  return await safeFetch(`${GITHUB_API}/${username}`);
-}
+  const userRes = await fetch(`${GITHUB_API}/${username}`, { headers });
+  if (!userRes.ok) {
+    throw new Error("GitHub user not found");
+  }
 
-/* ===============================
-   USER REPOSITORIES
-================================ */
-async function fetchRepos(username) {
-  return await safeFetch(`${GITHUB_API}/${username}/repos?per_page=100`);
-}
+  const user = await userRes.json();
 
-/* ===============================
-   AI SCORING ENGINE
-   (Expandable – deterministic)
-================================ */
-function calculateAIScore(user, repos) {
-  let score = 0;
-
-  score += Math.min(user.followers * 0.4, 30);
-  score += Math.min(user.public_repos * 0.8, 25);
-
-  const totalStars = repos.reduce(
-    (sum, repo) => sum + repo.stargazers_count,
-    0
+  const reposRes = await fetch(
+    `${GITHUB_API}/${username}/repos?per_page=100&sort=updated`,
+    { headers }
   );
-
-  score += Math.min(totalStars * 0.2, 25);
-
-  if (user.bio) score += 5;
-  if (user.blog) score += 5;
-  if (user.twitter_username) score += 5;
-
-  return Math.round(Math.min(score, 100));
-}
-
-/* ===============================
-   AI INSIGHT GENERATOR
-================================ */
-function generateAIInsights(user, repos) {
-  const insights = [];
-
-  if (user.followers > 1000)
-    insights.push("Strong community influence with high follower count.");
-
-  if (user.public_repos > 20)
-    insights.push("Highly active developer with many repositories.");
-
-  const forked = repos.filter(r => r.fork).length;
-  if (forked > repos.length / 2)
-    insights.push("Most projects are forks — originality could improve.");
-
-  const stars = repos.reduce((s, r) => s + r.stargazers_count, 0);
-  if (stars > 500)
-    insights.push("Projects receive solid community appreciation.");
-
-  if (!user.bio)
-    insights.push("Adding a bio would strengthen your profile.");
-
-  if (!insights.length)
-    insights.push("Balanced profile with steady activity.");
-
-  return insights.join(" ");
-}
-
-/* ===============================
-   FULL PROFILE LOAD
-================================ */
-async function loadFullProfile(username) {
-  const [user, repos] = await Promise.all([
-    fetchUser(username),
-    fetchRepos(username),
-  ]);
+  const repos = reposRes.ok ? await reposRes.json() : [];
 
   const aiScore = calculateAIScore(user, repos);
-  const insights = generateAIInsights(user, repos);
+  const insights = generateAIInsights(user, repos, aiScore);
 
   return {
     user,
     repos,
     aiScore,
-    insights,
+    insights
   };
 }
 
-/* ===============================
-   COMPARISON LOGIC
-================================ */
-async function compareUsers(userA, userB) {
-  const [a, b] = await Promise.all([
-    loadFullProfile(userA),
-    loadFullProfile(userB),
-  ]);
+/* ======================================
+   AI SCORE LOGIC (0–100)
+====================================== */
+function calculateAIScore(user, repos) {
+  let score = 0;
 
-  return {
-    left: a,
-    right: b,
-  };
+  score += Math.min(user.followers * 0.4, 30);
+  score += Math.min(user.public_repos * 0.5, 25);
+
+  const stars = repos.reduce(
+    (sum, repo) => sum + repo.stargazers_count,
+    0
+  );
+  score += Math.min(stars * 0.2, 25);
+
+  const accountAgeYears =
+    (Date.now() - new Date(user.created_at)) /
+    (1000 * 60 * 60 * 24 * 365);
+
+  score += Math.min(accountAgeYears * 4, 20);
+
+  return Math.round(Math.min(score, 100));
+}
+
+/* ======================================
+   AI INSIGHTS TEXT
+====================================== */
+function generateAIInsights(user, repos, score) {
+  let level = "Beginner";
+
+  if (score > 75) level = "Advanced Developer";
+  else if (score > 50) level = "Intermediate Developer";
+
+  return `
+${user.login} shows strong GitHub activity with ${user.public_repos} public repositories
+and ${user.followers} followers.
+
+The account has accumulated ${repos.reduce(
+    (s, r) => s + r.stargazers_count,
+    0
+  )} total stars, indicating community interest.
+
+Based on repository activity, popularity, and account maturity,
+this profile reflects an **${level}** level developer.
+  `;
 }
