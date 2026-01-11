@@ -1,112 +1,118 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GitHub Profile Analyzer</title>
-
-  <meta name="description" content="Professional GitHub profile analyzer with stats, charts, AI insights, offline mode, and PWA support." />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#0d1117" />
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.json" />
-
-  <!-- Performance -->
-  <link rel="preconnect" href="https://api.github.com" />
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
-
-  <!-- Icons -->
-  <link rel="icon" href="assets/icons/icon-192.png" />
+  <meta name="theme-color" content="#0d1117" />
 
   <!-- Styles -->
   <link rel="stylesheet" href="css/style.css" />
 
-  <!-- Libraries -->
-  <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- Charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
+  <!-- HEADER -->
+  <header class="app-header">
+    <a href="index.html" class="logo-link">
+      <h1 class="logo">GitHub Analyzer</h1>
+    </a>
 
-<!-- OFFLINE INDICATOR -->
-<div id="offlineBanner" class="offline hidden">
-  You are offline. Cached data is shown.
-</div>
-
-<!-- HEADER -->
-<header class="topbar">
-  <div class="topbar-inner">
-    <h1>GitHub <span>Analyzer</span></h1>
-
-    <div class="top-actions">
-      <button id="installBtn" class="ghost-btn hidden">Install</button>
-      <button onclick="enablePushNotifications()" class="ghost-btn">🔔</button>
-      <button onclick="exportPDF()" class="ghost-btn">📄 Export</button>
-    </div>
-  </div>
-</header>
-
-<!-- MAIN APP -->
-<main class="container" id="app">
+    <nav class="header-actions">
+      <a href="compare.html" class="nav-link">Compare</a>
+      <button id="themeToggle" aria-label="Toggle theme">🌙</button>
+    </nav>
+  </header>
 
   <!-- SEARCH -->
-  <section class="card search-card">
+  <section class="search-section">
     <input
-      id="usernameInput"
       type="text"
+      id="usernameInput"
       placeholder="Enter GitHub username"
       autocomplete="off"
     />
     <button id="searchBtn">Analyze</button>
   </section>
 
-  <!-- SEARCH HISTORY -->
-  <section id="history" class="history"></section>
+  <!-- LOADER -->
+  <div id="loader" class="loader hidden"></div>
 
-  <!-- ERROR -->
-  <section id="error" class="error"></section>
+  <!-- PROFILE CARD -->
+  <section id="profileCard" class="card profile-card hidden">
+    <div class="profile-header">
+      <img
+        id="avatar"
+        class="profile-avatar"
+        alt="GitHub profile avatar"
+      />
 
-  <!-- PROFILE -->
-  <section id="profile" class="card"></section>
+      <div class="profile-info">
+        <h2 id="name"></h2>
+        <p id="username" class="muted"></p>
+        <p id="bio"></p>
+      </div>
+    </div>
 
-  <!-- STATS -->
-  <section id="stats" class="stats-grid"></section>
+    <div class="stats-grid">
+      <div class="stat">
+        <span id="repos">0</span>
+        <small>Repos</small>
+      </div>
+      <div class="stat">
+        <span id="followers">0</span>
+        <small>Followers</small>
+      </div>
+      <div class="stat">
+        <span id="following">0</span>
+        <small>Following</small>
+      </div>
+    </div>
 
-  <!-- LANGUAGE CHART -->
-  <section class="card chart-card">
-    <h3>Language Usage</h3>
-    <canvas id="languageChart"></canvas>
-  </section>
-
-  <!-- REPOSITORIES -->
-  <section>
-    <h3>Repositories</h3>
-    <div id="repos" class="grid-2"></div>
+    <div class="profile-actions">
+      <button id="exportPdfBtn">Export PDF</button>
+    </div>
   </section>
 
   <!-- AI INSIGHTS -->
-  <section id="aiInsights" class="card">
-    <h3>AI Insights</h3>
-    <p class="muted">Insights will appear after analysis.</p>
+  <section id="aiCard" class="card ai-insights-card hidden">
+    <h3>🤖 AI Insights</h3>
+    <p id="aiInsights" class="ai-insights"></p>
+
+    <div class="ai-score">
+      <span>AI Score</span>
+      <strong><span id="aiScore">0</span>/100</strong>
+    </div>
   </section>
 
-</main>
+  <!-- LANGUAGE CHART -->
+  <section id="chartCard" class="card hidden">
+    <h3>📊 Language Usage</h3>
+    <canvas id="languageChart"></canvas>
+  </section>
 
-<!-- FOOTER -->
-<footer>
-  <nav class="footer-nav">
-    <a href="compare.html">Compare Profiles</a>
-    <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
-  </nav>
-  <p>Offline • PWA • Lighthouse Optimized</p>
-</footer>
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p>© 2026 GitHub Profile Analyzer</p>
+  </footer>
 
-<!-- SCRIPTS -->
-<script src="js/api.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/charts.js"></script>
-<script src="js/main.js"></script>
-<script src="js/pwa.js"></script>
+  <!-- SCRIPTS (ORDER IS IMPORTANT) -->
+  <script src="js/api.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/pdf.js"></script>
+  <script src="js/app.js"></script>
 
+  <!-- SERVICE WORKER -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js");
+    }
+  </script>
 </body>
 </html>
