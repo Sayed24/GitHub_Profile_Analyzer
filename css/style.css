@@ -63,6 +63,25 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
 }
+.profile-avatar {
+  width: 96px;
+  height: 96px;
+  min-width: 96px;
+  min-height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--accent);
+  background: #f3f4f6;
+}
+
+@media (max-width: 640px) {
+  .profile-avatar {
+    width: 72px;
+    height: 72px;
+    min-width: 72px;
+    min-height: 72px;
+  }
+}
 
 /* ================================
    OFFLINE BANNER
