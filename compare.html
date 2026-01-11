@@ -1,82 +1,123 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Compare GitHub Profiles</title>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#0d1117" />
-
-  <link rel="icon" href="assets/icons/icon-192.png" />
-  <link rel="manifest" href="manifest.json" />
+  <!-- Styles -->
   <link rel="stylesheet" href="css/style.css" />
 
-  <!-- Chart.js -->
-  <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
+  <!-- HEADER -->
+  <header class="app-header">
+    <a href="index.html" class="logo-link">
+      <h1 class="logo">GitHub Analyzer</h1>
+    </a>
 
-<header class="topbar">
-  <div class="topbar-inner">
-    <h1>Profile <span>Comparison</span></h1>
-    <div class="top-actions">
-      <a class="ghost-btn" href="index.html">← Back</a>
-    </div>
-  </div>
-</header>
+    <nav class="header-actions">
+      <a href="index.html" class="nav-link">Dashboard</a>
+    </nav>
+  </header>
 
-<main class="container">
-
-  <!-- SEARCH -->
-  <section class="card search-card">
-    <input id="userA" type="text" placeholder="Username A" />
-    <input id="userB" type="text" placeholder="Username B" />
+  <!-- COMPARE INPUTS -->
+  <section class="compare-inputs">
+    <input
+      type="text"
+      id="user1Input"
+      placeholder="First GitHub username"
+      autocomplete="off"
+    />
+    <input
+      type="text"
+      id="user2Input"
+      placeholder="Second GitHub username"
+      autocomplete="off"
+    />
     <button id="compareBtn">Compare</button>
   </section>
 
-  <!-- ERROR -->
-  <section id="compareError" class="error"></section>
+  <!-- LOADER -->
+  <div id="compareLoader" class="loader hidden"></div>
 
   <!-- COMPARISON GRID -->
-  <section class="grid-2">
+  <section class="compare-grid hidden" id="compareGrid">
+    <!-- USER 1 -->
+    <div class="card compare-card" id="user1Card">
+      <div class="profile-header">
+        <img id="avatar1" class="profile-avatar" alt="User 1 avatar" />
+        <div class="profile-info">
+          <h2 id="name1"></h2>
+          <p id="username1" class="muted"></p>
+        </div>
+      </div>
 
-    <!-- USER A -->
-    <div class="card">
-      <div id="profileA"></div>
-      <div id="statsA" class="stats-grid"></div>
+      <div class="stats-grid">
+        <div class="stat">
+          <span id="repos1">0</span>
+          <small>Repos</small>
+        </div>
+        <div class="stat">
+          <span id="followers1">0</span>
+          <small>Followers</small>
+        </div>
+        <div class="stat">
+          <span id="following1">0</span>
+          <small>Following</small>
+        </div>
+      </div>
+
+      <div class="ai-score compare-score">
+        <span>AI Score</span>
+        <strong><span id="score1">0</span>/100</strong>
+      </div>
     </div>
 
-    <!-- USER B -->
-    <div class="card">
-      <div id="profileB"></div>
-      <div id="statsB" class="stats-grid"></div>
+    <!-- USER 2 -->
+    <div class="card compare-card" id="user2Card">
+      <div class="profile-header">
+        <img id="avatar2" class="profile-avatar" alt="User 2 avatar" />
+        <div class="profile-info">
+          <h2 id="name2"></h2>
+          <p id="username2" class="muted"></p>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat">
+          <span id="repos2">0</span>
+          <small>Repos</small>
+        </div>
+        <div class="stat">
+          <span id="followers2">0</span>
+          <small>Followers</small>
+        </div>
+        <div class="stat">
+          <span id="following2">0</span>
+          <small>Following</small>
+        </div>
+      </div>
+
+      <div class="ai-score compare-score">
+        <span>AI Score</span>
+        <strong><span id="score2">0</span>/100</strong>
+      </div>
     </div>
-
-  </section>
-
-  <!-- LANGUAGE CHART -->
-  <section class="card chart-card">
-    <h3>Language Comparison</h3>
-    <canvas id="compareChart"></canvas>
   </section>
 
   <!-- WINNER -->
-  <section class="card" id="winnerCard">
-    <h3>🏆 Comparison Result</h3>
-    <p class="muted">Run a comparison to see the result.</p>
+  <section class="card hidden" id="winnerCard">
+    <h3>🏆 Winner</h3>
+    <p id="winnerText"></p>
   </section>
 
-</main>
-
-<footer>
-  <p>Side-by-side GitHub profile comparison</p>
-</footer>
-
-<!-- SCRIPTS -->
-<script src="js/api.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/compare.js"></script>
-
+  <!-- SCRIPTS (ORDER IS IMPORTANT) -->
+  <script src="js/api.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/compare.js"></script>
 </body>
 </html>
