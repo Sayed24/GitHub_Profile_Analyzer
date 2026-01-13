@@ -9,111 +9,85 @@
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#0d1117" />
 
-  <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css" />
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Charts -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
-  <!-- HEADER -->
+  <!-- Header -->
   <header class="app-header">
-    <a href="index.html" class="logo-link">
-      <h1 class="logo">GitHub Analyzer</h1>
-    </a>
+    <h1 class="logo" onclick="location.href='index.html'">GitHub Analyzer</h1>
 
-    <nav class="header-actions">
-      <a href="compare.html" class="nav-link">Compare</a>
+    <div class="header-actions">
       <button id="themeToggle" aria-label="Toggle theme">🌙</button>
-    </nav>
+      <a href="compare.html" class="compare-link">Compare</a>
+    </div>
   </header>
 
-  <!-- SEARCH -->
+  <!-- Search -->
   <section class="search-section">
     <input
       type="text"
       id="usernameInput"
-      placeholder="Enter GitHub username"
+      placeholder="Enter GitHub username…"
       autocomplete="off"
     />
     <button id="searchBtn">Analyze</button>
   </section>
 
-  <!-- LOADER -->
-  <div id="loader" class="loader hidden"></div>
+  <!-- Loading -->
+  <div id="loading" class="loading hidden">Loading profile…</div>
 
-  <!-- PROFILE CARD -->
-  <section id="profileCard" class="card profile-card hidden">
-    <div class="profile-header">
-      <img
-        id="avatar"
-        class="profile-avatar"
-        alt="GitHub profile avatar"
-      />
-
+  <!-- Profile -->
+  <main id="profileContainer" class="profile-container hidden">
+    <!-- Profile Card -->
+    <section class="card profile-card">
+      <img id="avatar" alt="Profile Avatar" />
       <div class="profile-info">
         <h2 id="name"></h2>
-        <p id="username" class="muted"></p>
         <p id="bio"></p>
+
+        <div class="stats">
+          <div><span id="repos"></span><small>Repos</small></div>
+          <div><span id="followers"></span><small>Followers</small></div>
+          <div><span id="following"></span><small>Following</small></div>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <div class="stats-grid">
-      <div class="stat">
-        <span id="repos">0</span>
-        <small>Repos</small>
+    <!-- AI Insights -->
+    <section class="card ai-card">
+      <h3>AI Insights</h3>
+      <p id="aiInsights">
+        Analyze a profile to generate insights.
+      </p>
+      <div class="ai-score">
+        <span>AI Score</span>
+        <strong id="aiScore">–</strong>
       </div>
-      <div class="stat">
-        <span id="followers">0</span>
-        <small>Followers</small>
-      </div>
-      <div class="stat">
-        <span id="following">0</span>
-        <small>Following</small>
-      </div>
-    </div>
+    </section>
 
-    <div class="profile-actions">
-      <button id="exportPdfBtn">Export PDF</button>
-    </div>
-  </section>
+    <!-- Repositories -->
+    <section class="card repos-card">
+      <h3>Repositories</h3>
+      <ul id="repoList"></ul>
+    </section>
 
-  <!-- AI INSIGHTS -->
-  <section id="aiCard" class="card ai-insights-card hidden">
-    <h3>🤖 AI Insights</h3>
-    <p id="aiInsights" class="ai-insights"></p>
+    <!-- Actions -->
+    <section class="card actions-card">
+      <button id="exportPdf">Export PDF</button>
+    </section>
+  </main>
 
-    <div class="ai-score">
-      <span>AI Score</span>
-      <strong><span id="aiScore">0</span>/100</strong>
-    </div>
-  </section>
+  <!-- Scripts -->
+  <script src="app.js"></script>
 
-  <!-- LANGUAGE CHART -->
-  <section id="chartCard" class="card hidden">
-    <h3>📊 Language Usage</h3>
-    <canvas id="languageChart"></canvas>
-  </section>
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    <p>© 2026 GitHub Profile Analyzer</p>
-  </footer>
-
-  <!-- SCRIPTS (ORDER IS IMPORTANT) -->
-  <script src="js/api.js"></script>
-  <script src="js/ai.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/pdf.js"></script>
-  <script src="js/app.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/charts.js"></script>
-  <script src="js/theme.js"></script>
-  <script src="js/app.js"></script>
-
-  <!-- SERVICE WORKER -->
+  <!-- Service Worker -->
   <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("service-worker.js");
