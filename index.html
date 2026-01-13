@@ -9,88 +9,52 @@
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#0d1117" />
 
-  <!-- Fonts & Icons -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
   <!-- Styles -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
-  <!-- Header -->
+  <!-- HEADER -->
   <header class="app-header">
-    <h1 class="logo" onclick="location.href='index.html'">GitHub Analyzer</h1>
+    <div id="logo" class="logo">GitHub Analyzer</div>
 
     <div class="header-actions">
-      <button id="themeToggle" aria-label="Toggle theme">🌙</button>
       <a href="compare.html" class="compare-link">Compare</a>
+      <button id="themeToggle" title="Toggle theme">🌙</button>
     </div>
   </header>
 
-  <!-- Search -->
+  <!-- SEARCH -->
   <section class="search-section">
     <input
-      type="text"
       id="usernameInput"
-      placeholder="Enter GitHub username…"
+      type="text"
+      placeholder="Enter GitHub username"
       autocomplete="off"
     />
-    <button id="searchBtn">Analyze</button>
+    <button id="searchBtn">Search</button>
   </section>
 
-  <!-- Loading -->
-  <div id="loading" class="loading hidden">Loading profile…</div>
+  <!-- LOADING -->
+  <div id="loading" class="loading hidden">Loading GitHub profile…</div>
 
-  <!-- Profile -->
-  <main id="profileContainer" class="profile-container hidden">
-    <!-- Profile Card -->
-    <section class="card profile-card">
-      <img id="avatar" alt="Profile Avatar" />
-      <div class="profile-info">
-        <h2 id="name"></h2>
-        <p id="bio"></p>
+  <!-- MAIN CONTENT -->
+  <main id="profileContainer" class="profile-container"></main>
 
-        <div class="stats">
-          <div><span id="repos"></span><small>Repos</small></div>
-          <div><span id="followers"></span><small>Followers</small></div>
-          <div><span id="following"></span><small>Following</small></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- AI Insights -->
-    <section class="card ai-card">
-      <h3>AI Insights</h3>
-      <p id="aiInsights">
-        Analyze a profile to generate insights.
-      </p>
-      <div class="ai-score">
-        <span>AI Score</span>
-        <strong id="aiScore">–</strong>
-      </div>
-    </section>
-
-    <!-- Repositories -->
-    <section class="card repos-card">
-      <h3>Repositories</h3>
-      <ul id="repoList"></ul>
-    </section>
-
-    <!-- Actions -->
-    <section class="card actions-card">
-      <button id="exportPdf">Export PDF</button>
-    </section>
-  </main>
-
-  <!-- Scripts -->
+  <!-- SCRIPT -->
   <script src="app.js"></script>
 
-  <!-- Service Worker -->
+  <!-- PWA REGISTER -->
   <script>
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("service-worker.js");
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("service-worker.js");
+      });
     }
   </script>
 </body>
