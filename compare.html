@@ -5,119 +5,96 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Compare GitHub Profiles</title>
 
-  <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css" />
-
-  <!-- Charts -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
   <!-- HEADER -->
   <header class="app-header">
-    <a href="index.html" class="logo-link">
-      <h1 class="logo">GitHub Analyzer</h1>
-    </a>
-
-    <nav class="header-actions">
-      <a href="index.html" class="nav-link">Dashboard</a>
-    </nav>
+    <div class="logo" onclick="location.href='index.html'">GitHub Analyzer</div>
+    <div class="header-actions">
+      <button id="themeToggle">🌙</button>
+    </div>
   </header>
 
-  <!-- COMPARE INPUTS -->
-  <section class="compare-inputs">
-    <input
-      type="text"
-      id="user1Input"
-      placeholder="First GitHub username"
-      autocomplete="off"
-    />
-    <input
-      type="text"
-      id="user2Input"
-      placeholder="Second GitHub username"
-      autocomplete="off"
-    />
-    <button id="compareBtn">Compare</button>
+  <!-- SEARCH -->
+  <section class="search-section">
+    <input id="user1" placeholder="First username" />
+    <input id="user2" placeholder="Second username" />
+    <button onclick="compare()">Compare</button>
   </section>
 
-  <!-- LOADER -->
-  <div id="compareLoader" class="loader hidden"></div>
+  <!-- LOADING -->
+  <div id="loading" class="loading hidden">Comparing profiles…</div>
 
-  <!-- COMPARISON GRID -->
-  <section class="compare-grid hidden" id="compareGrid">
-    <!-- USER 1 -->
-    <div class="card compare-card" id="user1Card">
-      <div class="profile-header">
-        <img id="avatar1" class="profile-avatar" alt="User 1 avatar" />
+  <!-- RESULTS -->
+  <main class="profile-container" id="compareContainer"></main>
+
+  <script>
+    const API = "https://api.github.com/users";
+    const container = document.getElementById("compareContainer");
+    const loading = document.getElementById("loading");
+    const themeToggle = document.getElementById("themeToggle");
+
+    // Theme
+    if (localStorage.getItem("theme") === "light") {
+      document.body.classList.add("light");
+    }
+    themeToggle.onclick = () => {
+      document.body.classList.toggle("light");
+      localStorage.setItem(
+        "theme",
+        document.body.classList.contains("light") ? "light" : "dark"
+      );
+    };
+
+    async function fetchUser(username) {
+      const res = await fetch(`${API}/${username}`);
+      if (!res.ok) throw new Error("User not found");
+      return res.json();
+    }
+
+    async function compare() {
+      const u1 = document.getElementById("user1").value.trim();
+      const u2 = document.getElementById("user2").value.trim();
+      if (!u1 || !u2) return alert("Enter both usernames");
+
+      loading.classList.remove("hidden");
+      container.innerHTML = "";
+
+      try {
+        const [userA, userB] = await Promise.all([
+          fetchUser(u1),
+          fetchUser(u2)
+        ]);
+
+        renderUser(userA);
+        renderUser(userB);
+      } catch (e) {
+        alert(e.message);
+      } finally {
+        loading.classList.add("hidden");
+      }
+    }
+
+    function renderUser(user) {
+      const card = document.createElement("div");
+      card.className = "card profile-card";
+
+      card.innerHTML = `
+        <img src="${user.avatar_url}" />
         <div class="profile-info">
-          <h2 id="name1"></h2>
-          <p id="username1" class="muted"></p>
+          <h2>${user.login}</h2>
+          <p>${user.bio || "No bio"}</p>
+          <div class="stats">
+            <div><span>${user.followers}</span><br>Followers</div>
+            <div><span>${user.public_repos}</span><br>Repos</div>
+            <div><span>${user.following}</span><br>Following</div>
+          </div>
         </div>
-      </div>
-
-      <div class="stats-grid">
-        <div class="stat">
-          <span id="repos1">0</span>
-          <small>Repos</small>
-        </div>
-        <div class="stat">
-          <span id="followers1">0</span>
-          <small>Followers</small>
-        </div>
-        <div class="stat">
-          <span id="following1">0</span>
-          <small>Following</small>
-        </div>
-      </div>
-
-      <div class="ai-score compare-score">
-        <span>AI Score</span>
-        <strong><span id="score1">0</span>/100</strong>
-      </div>
-    </div>
-
-    <!-- USER 2 -->
-    <div class="card compare-card" id="user2Card">
-      <div class="profile-header">
-        <img id="avatar2" class="profile-avatar" alt="User 2 avatar" />
-        <div class="profile-info">
-          <h2 id="name2"></h2>
-          <p id="username2" class="muted"></p>
-        </div>
-      </div>
-
-      <div class="stats-grid">
-        <div class="stat">
-          <span id="repos2">0</span>
-          <small>Repos</small>
-        </div>
-        <div class="stat">
-          <span id="followers2">0</span>
-          <small>Followers</small>
-        </div>
-        <div class="stat">
-          <span id="following2">0</span>
-          <small>Following</small>
-        </div>
-      </div>
-
-      <div class="ai-score compare-score">
-        <span>AI Score</span>
-        <strong><span id="score2">0</span>/100</strong>
-      </div>
-    </div>
-  </section>
-
-  <!-- WINNER -->
-  <section class="card hidden" id="winnerCard">
-    <h3>🏆 Winner</h3>
-    <p id="winnerText"></p>
-  </section>
-
-  <!-- SCRIPTS (ORDER IS IMPORTANT) -->
-  <script src="js/api.js"></script>
-  <script src="js/ai.js"></script>
-  <script src="js/compare.js"></script>
+      `;
+      container.appendChild(card);
+    }
+  </script>
 </body>
 </html>
