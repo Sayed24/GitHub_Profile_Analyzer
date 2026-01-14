@@ -213,3 +213,29 @@ function loadUserFromURL() {
     handleSearch();
   }
 }
+/* ============================
+   PDF EXPORT
+============================ */
+document.addEventListener("click", e => {
+  if (e.target.id === "exportPDF") {
+    exportPDF();
+  }
+});
+
+function exportPDF() {
+  const element = document.getElementById("profileContainer");
+  if (!element || !element.children.length) {
+    alert("Load a profile before exporting.");
+    return;
+  }
+
+  const opt = {
+    margin: 0.5,
+    filename: "github-profile-report.pdf",
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: "in", format: "a4", orientation: "portrait" }
+  };
+
+  html2pdf().set(opt).from(element).save();
+}
