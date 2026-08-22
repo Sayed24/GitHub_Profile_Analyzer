@@ -1,66 +1,271 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="description" content="A polished GitHub profile analyzer with repository analytics, charts, smart insights, comparison, favorites, offline support, and PWA installation." />
+  <meta name="theme-color" content="#0d1117" />
+  <meta name="color-scheme" content="dark light" />
   <title>GitHub Profile Analyzer</title>
 
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#0d1117" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+  <link rel="stylesheet" href="css/styles.css" />
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://api.github.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
 
-  <!-- Styles -->
-  <link rel="stylesheet" href="styles.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script defer src="js/utils.js"></script>
+  <script defer src="js/api.js"></script>
+  <script defer src="js/charts.js"></script>
+  <script defer src="js/ui.js"></script>
+  <script defer src="js/theme.js"></script>
+  <script defer src="js/pwa.js"></script>
+  <script defer src="js/app.js"></script>
 </head>
-
 <body>
-  <!-- HEADER -->
-  <header class="app-header">
-    <div id="logo" class="logo">GitHub Analyzer</div>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
 
-    <div class="header-actions">
-      <a href="compare.html" class="compare-link">Compare</a>
-      <button id="themeToggle" title="Toggle theme">🌙</button>
+  <div id="offlineBanner" class="connection-banner is-hidden" role="status" aria-live="polite">
+    <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M2 8.8A15.7 15.7 0 0 1 12 5c3.7 0 7.1 1.3 9.8 3.7M5.5 12.3A10.7 10.7 0 0 1 12 10c2.4 0 4.7.8 6.5 2.2M9.2 15.8A5.6 5.6 0 0 1 12 15c1 0 2 .3 2.8.8M12 20h.01M3 3l18 18"/></svg>
+    You’re offline. Cached profiles remain available; new searches require a connection.
+  </div>
+
+  <header class="app-header">
+    <div class="header-inner">
+      <a class="brand" href="./index.html" aria-label="GitHub Profile Analyzer home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.58 2 12.23c0 4.52 2.87 8.35 6.84 9.7.5.1.68-.22.68-.49 0-.24-.01-1.05-.02-1.9-2.78.62-3.37-1.2-3.37-1.2-.46-1.2-1.11-1.52-1.11-1.52-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.56 2.35 1.11 2.92.85.09-.66.35-1.11.64-1.36-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05A9.35 9.35 0 0 1 12 6.92c.85 0 1.71.12 2.51.35 1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.35 4.8-4.58 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.25 10.25 0 0 0 22 12.23C22 6.58 17.52 2 12 2Z"/></svg>
+        </span>
+        <span class="brand-copy">
+          <strong>GitHub Analyzer</strong>
+          <small>Profile intelligence dashboard</small>
+        </span>
+      </a>
+
+      <nav class="header-actions" aria-label="Primary actions">
+        <a class="icon-button text-button" href="compare.html" title="Compare profiles">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 3h8M12 3v18M4 8h8M4 8l-3 5h6L4 8Zm12 3h7m-3.5 0-3 5h6l-3-5Z"/></svg>
+          <span>Compare</span>
+        </a>
+        <button id="installBtn" class="icon-button text-button is-hidden" type="button" title="Install app">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"/></svg>
+          <span>Install</span>
+        </button>
+        <button id="notifyBtn" class="icon-button" type="button" title="Enable notifications" aria-label="Enable notifications">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+        </button>
+        <button id="themeToggle" class="icon-button" type="button" title="Toggle color theme" aria-label="Toggle color theme">
+          <svg class="theme-icon theme-icon-sun" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+          <svg class="theme-icon theme-icon-moon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+        </button>
+      </nav>
     </div>
   </header>
 
-  <!-- SEARCH -->
-  <section class="search-section">
-    <input
-      id="usernameInput"
-      type="text"
-      placeholder="Enter GitHub username"
-      autocomplete="off"
-    />
-    <button id="searchBtn">Search</button>
-  </section>
+  <main id="mainContent" class="page-shell">
+    <section class="hero-section" aria-labelledby="heroTitle">
+      <div class="hero-copy">
+        <span class="eyebrow">Real GitHub data • No sign-in required</span>
+        <h1 id="heroTitle">Turn any GitHub profile into a clear portfolio snapshot.</h1>
+        <p>Search a username to explore profile health, repository traction, languages, recent public activity, favorites, and shareable analytics.</p>
+      </div>
 
-  <!-- LOADING -->
-  <div id="loading" class="loading hidden">Loading GitHub profile…</div>
+      <form id="searchForm" class="search-card" novalidate>
+        <label class="sr-only" for="usernameInput">GitHub username</label>
+        <span class="search-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        </span>
+        <input id="usernameInput" name="username" type="text" inputmode="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="39" placeholder="Try octocat or Sayed24" aria-describedby="searchHint" />
+        <button id="searchBtn" class="primary-button" type="submit">
+          <span class="button-label">Analyze profile</span>
+          <span class="button-loader" aria-hidden="true"></span>
+        </button>
+      </form>
+      <p id="searchHint" class="search-hint">Tip: paste a GitHub profile URL or enter only the username.</p>
 
-  <!-- MAIN CONTENT -->
-  <main id="profileContainer" class="profile-container">
-    <div class="card actions-card">
-      <button id="exportPDF">Export PDF</button>
-    </div>
+      <div class="quick-access-grid">
+        <section class="mini-panel" aria-labelledby="historyTitle">
+          <div class="mini-panel-heading">
+            <h2 id="historyTitle">Recent searches</h2>
+            <button id="clearHistoryBtn" class="link-button" type="button">Clear</button>
+          </div>
+          <div id="historyList" class="chip-list" aria-live="polite">
+            <span class="empty-inline">No recent searches yet.</span>
+          </div>
+        </section>
+
+        <section class="mini-panel" aria-labelledby="favoritesTitle">
+          <div class="mini-panel-heading">
+            <h2 id="favoritesTitle">Favorites</h2>
+            <span id="favoriteCount" class="count-badge">0</span>
+          </div>
+          <div id="favoritesList" class="chip-list" aria-live="polite">
+            <span class="empty-inline">Star a profile to keep it here.</span>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="errorPanel" class="message-card error-card is-hidden" role="alert" aria-live="assertive">
+      <div class="message-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5m0 3h.01"/></svg>
+      </div>
+      <div>
+        <h2 id="errorTitle">Unable to load profile</h2>
+        <p id="errorMessage">Please try again.</p>
+      </div>
+    </section>
+
+    <section id="skeletonPanel" class="dashboard is-hidden" aria-label="Loading profile">
+      <div class="card profile-card skeleton-card">
+        <div class="skeleton skeleton-avatar"></div>
+        <div class="skeleton-stack">
+          <span class="skeleton skeleton-line skeleton-line-lg"></span>
+          <span class="skeleton skeleton-line"></span>
+          <span class="skeleton skeleton-line skeleton-line-sm"></span>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="card metric-card skeleton-card"></div>
+        <div class="card metric-card skeleton-card"></div>
+        <div class="card metric-card skeleton-card"></div>
+        <div class="card metric-card skeleton-card"></div>
+      </div>
+    </section>
+
+    <section id="dashboard" class="dashboard is-hidden" aria-live="polite">
+      <section id="profileCard" class="card profile-card"></section>
+
+      <section id="statsGrid" class="stats-grid" aria-label="Profile statistics"></section>
+
+      <section class="insight-grid">
+        <article class="card insight-card">
+          <div class="section-heading compact-heading">
+            <div>
+              <span class="section-kicker">Local analysis</span>
+              <h2>Smart insights</h2>
+            </div>
+            <span id="portfolioScoreBadge" class="score-badge">—</span>
+          </div>
+          <div id="smartInsights" class="insight-list"></div>
+        </article>
+
+        <article class="card health-card">
+          <div class="section-heading compact-heading">
+            <div>
+              <span class="section-kicker">Profile signals</span>
+              <h2>Portfolio health</h2>
+            </div>
+          </div>
+          <div id="healthSignals" class="health-signals"></div>
+        </article>
+      </section>
+
+      <section class="chart-grid">
+        <article class="card chart-card">
+          <div class="section-heading compact-heading">
+            <div>
+              <span class="section-kicker">Repository mix</span>
+              <h2>Language usage</h2>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="languageChart" role="img" aria-label="Repository language usage chart"></canvas></div>
+          <div id="languageFallback" class="chart-fallback is-hidden"></div>
+        </article>
+
+        <article class="card chart-card">
+          <div class="section-heading compact-heading">
+            <div>
+              <span class="section-kicker">Community traction</span>
+              <h2>Top repositories by stars</h2>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="starsChart" role="img" aria-label="Top repositories by stars chart"></canvas></div>
+          <div id="starsFallback" class="chart-fallback is-hidden"></div>
+        </article>
+      </section>
+
+      <section class="card activity-card">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Last 12 weeks</span>
+            <h2>Public activity heatmap</h2>
+            <p>Based on public GitHub events—not the private contribution calendar.</p>
+          </div>
+          <div id="activitySummary" class="activity-summary"></div>
+        </div>
+        <div id="activityHeatmap" class="heatmap-scroll" aria-label="Public activity heatmap"></div>
+        <div class="activity-footer" aria-hidden="true">
+          <span>Less</span>
+          <span class="activity-legend">
+            <span class="heatmap-cell" data-level="0"></span>
+            <span class="heatmap-cell" data-level="1"></span>
+            <span class="heatmap-cell" data-level="2"></span>
+            <span class="heatmap-cell" data-level="3"></span>
+            <span class="heatmap-cell" data-level="4"></span>
+          </span>
+          <span>More</span>
+        </div>
+      </section>
+
+      <section class="repositories-section" aria-labelledby="reposTitle">
+        <div class="section-heading repositories-heading">
+          <div>
+            <span class="section-kicker">Explore the work</span>
+            <h2 id="reposTitle">Repositories</h2>
+            <p id="repoCountLabel">Sorted by relevance.</p>
+          </div>
+          <div class="repo-controls">
+            <label class="filter-control search-filter">
+              <span class="sr-only">Filter repositories</span>
+              <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input id="repoSearchInput" type="search" placeholder="Filter repos" />
+            </label>
+            <label class="filter-control">
+              <span class="sr-only">Filter by language</span>
+              <select id="languageFilter" aria-label="Filter repositories by language">
+                <option value="all">All languages</option>
+              </select>
+            </label>
+            <label class="filter-control">
+              <span class="sr-only">Sort repositories</span>
+              <select id="repoSort" aria-label="Sort repositories">
+                <option value="updated">Recently updated</option>
+                <option value="stars">Most starred</option>
+                <option value="forks">Most forked</option>
+                <option value="name">Name A–Z</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div id="reposGrid" class="repos-grid"></div>
+        <div id="repoEmptyState" class="empty-state is-hidden">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 4h16v16H4zM8 9h8m-8 4h5"/></svg>
+          <h3>No matching repositories</h3>
+          <p>Try a different search or language filter.</p>
+        </div>
+      </section>
+    </section>
   </main>
 
-  <!-- SCRIPT -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script src="app.js"></script>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <strong>GitHub Profile Analyzer</strong>
+        <p>Built with the public GitHub REST API. Cached locally for speed and offline revisit.</p>
+      </div>
+      <div class="footer-meta">
+        <span id="rateLimitLabel">API status: ready</span>
+        <a href="compare.html">Compare profiles</a>
+        <a href="https://docs.github.com/en/rest" target="_blank" rel="noopener noreferrer">GitHub API docs</a>
+      </div>
+    </div>
+  </footer>
 
-  <!-- PWA REGISTER -->
-  <script>
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("service-worker.js");
-      });
-    }
-  </script>
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
 </body>
 </html>

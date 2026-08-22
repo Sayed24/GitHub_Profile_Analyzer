@@ -1,177 +1,116 @@
-/* =========================================================
-   ELEMENTS
-========================================================= */
+(function (global) {
+  "use strict";
 
-const userAInput = document.getElementById("userA");
-const userBInput = document.getElementById("userB");
-const compareBtn = document.getElementById("compareBtn");
-const errorEl = document.getElementById("compareError");
+  const state = { controller: null, left: null, right: null };
 
-const profileAEl = document.getElementById("profileA");
-const profileBEl = document.getElementById("profileB");
-const statsAEl = document.getElementById("statsA");
-const statsBEl = document.getElementById("statsB");
-const winnerEl = document.getElementById("winnerCard");
-
-let compareChart = null;
-
-/* =========================================================
-   EVENTS
-========================================================= */
-
-compareBtn.addEventListener("click", () => {
-  startComparison(
-    userAInput.value.trim(),
-    userBInput.value.trim()
-  );
-});
-
-/* =========================================================
-   MAIN LOGIC
-========================================================= */
-
-async function startComparison(userA, userB) {
-  errorEl.textContent = "";
-  profileAEl.innerHTML = "";
-  profileBEl.innerHTML = "";
-  statsAEl.innerHTML = "";
-  statsBEl.innerHTML = "";
-  winnerEl.innerHTML = "<h3>🏆 Comparison Result</h3>";
-
-  if (!userA || !userB) {
-    errorEl.textContent = "Please enter both usernames.";
-    return;
+  function refs() {
+    return {
+      form: document.getElementById("compareForm"),
+      leftInput: document.getElementById("userAInput"),
+      rightInput: document.getElementById("userBInput"),
+      button: document.getElementById("compareBtn"),
+      results: document.getElementById("compareResults"),
+      skeleton: document.getElementById("compareSkeleton"),
+      error: document.getElementById("compareError"),
+      errorMessage: document.getElementById("compareErrorMessage")
+    };
   }
 
-  try {
-    const [profileA, profileB] = await Promise.all([
-      api.getUserProfile(userA),
-      api.getUserProfile(userB)
-    ]);
-
-    const [reposA, reposB] = await Promise.all([
-      api.getUserRepos(userA),
-      api.getUserRepos(userB)
-    ]);
-
-    renderSideProfile(profileA, profileAEl);
-    renderSideProfile(profileB, profileBEl);
-
-    const statsA = api.calculateRepoStats(reposA);
-    const statsB = api.calculateRepoStats(reposB);
-
-    const scoreA = api.calculateActivityScore(profileA, reposA);
-    const scoreB = api.calculateActivityScore(profileB, reposB);
-
-    renderCompareStats(statsAEl, profileA, statsA, scoreA);
-    renderCompareStats(statsBEl, profileB, statsB, scoreB);
-
-    renderCompareChart(
-      api.calculateLanguages(reposA),
-      api.calculateLanguages(reposB),
-      profileA.login,
-      profileB.login
-    );
-
-    determineWinner(profileA, profileB, scoreA, scoreB);
-  } catch (err) {
-    errorEl.textContent = err.message;
-  }
-}
-
-/* =========================================================
-   PROFILE CARD
-========================================================= */
-
-function renderSideProfile(profile, container) {
-  container.innerHTML = `
-    <div class="profile-header">
-      <img src="${profile.avatar_url}" alt="Avatar" />
-      <div>
-        <h3>${profile.name || profile.login}</h3>
-        <p class="muted">@${profile.login}</p>
-      </div>
-    </div>
-  `;
-}
-
-/* =========================================================
-   STATS
-========================================================= */
-
-function renderCompareStats(el, profile, stats, score) {
-  el.innerHTML = "";
-
-  const data = [
-    ["Followers", profile.followers],
-    ["Repos", stats.totalRepos],
-    ["Stars", stats.totalStars],
-    ["Forks", stats.totalForks],
-    ["Activity", score]
-  ];
-
-  data.forEach(([label, value]) => {
-    const div = document.createElement("div");
-    div.className = "stat";
-    div.innerHTML = `<h4>${label}</h4><span>${value}</span>`;
-    el.appendChild(div);
-  });
-}
-
-/* =========================================================
-   LANGUAGE COMPARISON CHART
-========================================================= */
-
-function renderCompareChart(langA, langB, labelA, labelB) {
-  const ctx = document.getElementById("compareChart");
-
-  if (compareChart) compareChart.destroy();
-
-  const labels = Array.from(
-    new Set([...Object.keys(langA), ...Object.keys(langB)])
-  );
-
-  compareChart = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [
-        {
-          label: labelA,
-          data: labels.map(l => langA[l] || 0),
-          backgroundColor: "#58a6ff"
-        },
-        {
-          label: labelB,
-          data: labels.map(l => langB[l] || 0),
-          backgroundColor: "#7ee787"
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: {
-          labels: { color: "#c9d1d9" }
-        }
-      },
-      scales: {
-        x: { ticks: { color: "#8b949e" } },
-        y: { ticks: { color: "#8b949e" } }
-      }
+  function setLoading(loading) {
+    const button = refs().button;
+    if (button) {
+      button.disabled = Boolean(loading);
+      button.classList.toggle("is-loading", Boolean(loading));
     }
-  });
-}
+    const skeleton = refs().skeleton;
+    if (skeleton) skeleton.classList.toggle("is-hidden", !loading);
+  }
 
-/* =========================================================
-   WINNER LOGIC
-========================================================= */
+  function setError(message) {
+    const { error, errorMessage } = refs();
+    if (!error || !errorMessage) return;
+    errorMessage.textContent = String(message || "Comparison failed.");
+    error.classList.remove("is-hidden");
+  }
 
-function determineWinner(pA, pB, scoreA, scoreB) {
-  let winner = "It's a tie!";
+  function clearError() {
+    const error = refs().error;
+    if (error) error.classList.add("is-hidden");
+  }
 
-  if (scoreA > scoreB) winner = `${pA.login} wins 🏆`;
-  else if (scoreB > scoreA) winner = `${pB.login} wins 🏆`;
+  function setUrl(left, right) {
+    const url = new URL(global.location.href);
+    url.searchParams.set("a", left);
+    url.searchParams.set("b", right);
+    global.history.replaceState({ a: left, b: right }, "", url);
+  }
 
-  winnerEl.innerHTML += `<p>${winner}</p>`;
-}
+  function render() {
+    const { results } = refs();
+    GHUI.renderComparisonSummary(state.left, state.right);
+    GHUI.renderCompareProfile("profileA", state.left);
+    GHUI.renderCompareProfile("profileB", state.right);
+    GHCharts.renderCompareLanguageChart(state.left.metrics.languages, state.right.metrics.languages, state.left.user.login, state.right.user.login);
+    GHUI.updateRateLimit(state.right.meta.rateLimit || state.left.meta.rateLimit);
+    if (results) results.classList.remove("is-hidden");
+  }
+
+  async function compare(rawLeft, rawRight) {
+    const leftName = GHUtils.normalizeUsername(rawLeft);
+    const rightName = GHUtils.normalizeUsername(rawRight);
+    if (!leftName || !rightName) {
+      setError("Enter two valid GitHub usernames or GitHub profile URLs.");
+      return;
+    }
+    if (leftName.toLowerCase() === rightName.toLowerCase()) {
+      setError("Choose two different GitHub profiles for comparison.");
+      return;
+    }
+
+    const r = refs();
+    if (state.controller) state.controller.abort();
+    state.controller = new AbortController();
+    clearError();
+    if (r.results) r.results.classList.add("is-hidden");
+    if (r.leftInput) r.leftInput.value = leftName;
+    if (r.rightInput) r.rightInput.value = rightName;
+    setLoading(true);
+
+    try {
+      const [left, right] = await Promise.all([
+        GitHubAPI.getProfileBundle(leftName, { signal: state.controller.signal }),
+        GitHubAPI.getProfileBundle(rightName, { signal: state.controller.signal })
+      ]);
+      state.left = left;
+      state.right = right;
+      render();
+      setUrl(left.user.login, right.user.login);
+      if (left.meta.stale || right.meta.stale) GHUI.toast("At least one profile is using stale cached data because the network was unavailable.", "");
+    } catch (error) {
+      if (error && error.name === "AbortError") return;
+      setError(error && error.message ? error.message : "The profiles could not be compared.");
+    } finally {
+      setLoading(false);
+      state.controller = null;
+    }
+  }
+
+  function init() {
+    const r = refs();
+    if (r.form) r.form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      compare(r.leftInput.value, r.rightInput.value);
+    });
+    global.addEventListener("ghpa:themechange", () => GHCharts.refreshForTheme());
+
+    const params = new URL(global.location.href).searchParams;
+    const left = params.get("a");
+    const right = params.get("b");
+    if (left && right) compare(left, right);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
+  else init();
+
+  global.GHCompare = { compare };
+})(window);

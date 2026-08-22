@@ -1,0 +1,13 @@
+{
+  "name": "github-profile-analyzer",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Responsive GitHub profile analytics PWA built with HTML, CSS and vanilla JavaScript.",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "check": "node --check js/utils.js && node --check js/api.js && node --check js/charts.js && node --check js/ui.js && node --check js/theme.js && node --check js/pwa.js && node --check js/app.js && node --check js/compare.js && node --check service-worker.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

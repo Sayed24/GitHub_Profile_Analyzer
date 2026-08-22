@@ -1,54 +1,24 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
-  <title>Offline • GitHub Analyzer</title>
-
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#0d1117" />
-
-  <link rel="icon" href="assets/icons/icon-192.png" />
-  <link rel="stylesheet" href="css/style.css" />
+  <title>Offline • GitHub Profile Analyzer</title>
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
-
-<body>
-
-<main class="container">
-
-  <section class="card" style="text-align:center; margin-top:3rem;">
-    <h2>⚡ You’re Offline</h2>
-    <p class="muted" style="margin-top:0.6rem;">
-      No internet connection detected.
-    </p>
-
-    <p style="margin-top:1rem;">
-      You can still:
-    </p>
-
-    <ul style="text-align:left; margin:1rem auto; max-width:420px;">
-      <li>✔ View previously searched profiles</li>
-      <li>✔ Access cached analytics</li>
-      <li>✔ Use the app in PWA mode</li>
-    </ul>
-
-    <button
-      onclick="window.location.href='index.html'"
-      style="
-        margin-top:1.2rem;
-        padding:0.7rem 1.4rem;
-        border-radius:10px;
-        border:none;
-        background:#58a6ff;
-        color:#fff;
-        font-weight:600;
-        cursor:pointer;
-      "
-    >
-      Go Back Home
-    </button>
-  </section>
-
-</main>
-
+<body class="offline-page">
+  <main class="offline-shell">
+    <section class="card offline-card">
+      <span class="offline-art" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M2 8.8A15.7 15.7 0 0 1 12 5c3.7 0 7.1 1.3 9.8 3.7M5.5 12.3A10.7 10.7 0 0 1 12 10c2.4 0 4.7.8 6.5 2.2M9.2 15.8A5.6 5.6 0 0 1 12 15c1 0 2 .3 2.8.8M12 20h.01M3 3l18 18"/></svg></span>
+      <span class="eyebrow">Offline mode</span>
+      <h1>No connection right now.</h1>
+      <p>The app shell is available offline, and profiles you previously analyzed may still load from the local cache. Connect to the internet to analyze a new username.</p>
+      <div class="offline-actions">
+        <a class="primary-button button-link" href="index.html">Open dashboard</a>
+        <button class="secondary-button" type="button" onclick="location.reload()">Try again</button>
+      </div>
+    </section>
+  </main>
 </body>
 </html>

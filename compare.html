@@ -1,100 +1,121 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="description" content="Compare two GitHub profiles side by side with repository, language, activity, and portfolio score analytics." />
+  <meta name="theme-color" content="#0d1117" />
+  <meta name="color-scheme" content="dark light" />
   <title>Compare GitHub Profiles</title>
 
-  <link rel="stylesheet" href="styles.css" />
-</head>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+  <link rel="stylesheet" href="css/styles.css" />
 
+  <link rel="preconnect" href="https://api.github.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script defer src="js/utils.js"></script>
+  <script defer src="js/api.js"></script>
+  <script defer src="js/charts.js"></script>
+  <script defer src="js/ui.js"></script>
+  <script defer src="js/theme.js"></script>
+  <script defer src="js/pwa.js"></script>
+  <script defer src="js/compare.js"></script>
+</head>
 <body>
-  <!-- HEADER -->
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+
+  <div id="offlineBanner" class="connection-banner is-hidden" role="status" aria-live="polite">
+    You’re offline. Cached comparisons may still be available.
+  </div>
+
   <header class="app-header">
-    <div class="logo" onclick="location.href='index.html'">GitHub Analyzer</div>
-    <div class="header-actions">
-      <button id="themeToggle">🌙</button>
+    <div class="header-inner">
+      <a class="brand" href="index.html" aria-label="GitHub Profile Analyzer home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.58 2 12.23c0 4.52 2.87 8.35 6.84 9.7.5.1.68-.22.68-.49 0-.24-.01-1.05-.02-1.9-2.78.62-3.37-1.2-3.37-1.2-.46-1.2-1.11-1.52-1.11-1.52-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.56 2.35 1.11 2.92.85.09-.66.35-1.11.64-1.36-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05A9.35 9.35 0 0 1 12 6.92c.85 0 1.71.12 2.51.35 1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.35 4.8-4.58 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.25 10.25 0 0 0 22 12.23C22 6.58 17.52 2 12 2Z"/></svg>
+        </span>
+        <span class="brand-copy"><strong>GitHub Analyzer</strong><small>Profile comparison</small></span>
+      </a>
+
+      <nav class="header-actions" aria-label="Primary actions">
+        <a class="icon-button text-button" href="index.html">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+          <span>Dashboard</span>
+        </a>
+        <button id="installBtn" class="icon-button text-button is-hidden" type="button" title="Install app">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"/></svg><span>Install</span>
+        </button>
+        <button id="themeToggle" class="icon-button" type="button" title="Toggle color theme" aria-label="Toggle color theme">
+          <svg class="theme-icon theme-icon-sun" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+          <svg class="theme-icon theme-icon-moon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+        </button>
+      </nav>
     </div>
   </header>
 
-  <!-- SEARCH -->
-  <section class="search-section">
-    <input id="user1" placeholder="First username" />
-    <input id="user2" placeholder="Second username" />
-    <button onclick="compare()">Compare</button>
-  </section>
+  <main id="mainContent" class="page-shell compare-page">
+    <section class="hero-section compare-hero" aria-labelledby="compareTitle">
+      <div class="hero-copy">
+        <span class="eyebrow">Side-by-side analytics</span>
+        <h1 id="compareTitle">Compare two public GitHub profiles.</h1>
+        <p>See repository traction, languages, activity signals, and transparent portfolio scores without treating the result as a measure of developer ability.</p>
+      </div>
 
-  <!-- LOADING -->
-  <div id="loading" class="loading hidden">Comparing profiles…</div>
+      <form id="compareForm" class="compare-form" novalidate>
+        <label class="field-group">
+          <span>Profile A</span>
+          <input id="userAInput" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="e.g. octocat" maxlength="39" />
+        </label>
+        <span class="versus-badge" aria-hidden="true">VS</span>
+        <label class="field-group">
+          <span>Profile B</span>
+          <input id="userBInput" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="e.g. Sayed24" maxlength="39" />
+        </label>
+        <button id="compareBtn" class="primary-button compare-submit" type="submit">
+          <span class="button-label">Compare profiles</span>
+          <span class="button-loader" aria-hidden="true"></span>
+        </button>
+      </form>
+    </section>
 
-  <!-- RESULTS -->
-  <main class="profile-container" id="compareContainer"></main>
+    <section id="compareError" class="message-card error-card is-hidden" role="alert" aria-live="assertive">
+      <div class="message-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5m0 3h.01"/></svg></div>
+      <div><h2>Comparison unavailable</h2><p id="compareErrorMessage">Please try again.</p></div>
+    </section>
 
-  <script>
-    const API = "https://api.github.com/users";
-    const container = document.getElementById("compareContainer");
-    const loading = document.getElementById("loading");
-    const themeToggle = document.getElementById("themeToggle");
+    <section id="compareSkeleton" class="compare-results is-hidden" aria-label="Loading comparison">
+      <div class="card compare-profile-card skeleton-card"></div>
+      <div class="card compare-profile-card skeleton-card"></div>
+    </section>
 
-    // Theme
-    if (localStorage.getItem("theme") === "light") {
-      document.body.classList.add("light");
-    }
-    themeToggle.onclick = () => {
-      document.body.classList.toggle("light");
-      localStorage.setItem(
-        "theme",
-        document.body.classList.contains("light") ? "light" : "dark"
-      );
-    };
+    <section id="compareResults" class="compare-dashboard is-hidden">
+      <section id="comparisonSummary" class="card comparison-summary-card"></section>
+      <div class="compare-results">
+        <article id="profileA" class="card compare-profile-card"></article>
+        <article id="profileB" class="card compare-profile-card"></article>
+      </div>
 
-    async function fetchUser(username) {
-      const res = await fetch(`${API}/${username}`);
-      if (!res.ok) throw new Error("User not found");
-      return res.json();
-    }
-
-    async function compare() {
-      const u1 = document.getElementById("user1").value.trim();
-      const u2 = document.getElementById("user2").value.trim();
-      if (!u1 || !u2) return alert("Enter both usernames");
-
-      loading.classList.remove("hidden");
-      container.innerHTML = "";
-
-      try {
-        const [userA, userB] = await Promise.all([
-          fetchUser(u1),
-          fetchUser(u2)
-        ]);
-
-        renderUser(userA);
-        renderUser(userB);
-      } catch (e) {
-        alert(e.message);
-      } finally {
-        loading.classList.add("hidden");
-      }
-    }
-
-    function renderUser(user) {
-      const card = document.createElement("div");
-      card.className = "card profile-card";
-
-      card.innerHTML = `
-        <img src="${user.avatar_url}" />
-        <div class="profile-info">
-          <h2>${user.login}</h2>
-          <p>${user.bio || "No bio"}</p>
-          <div class="stats">
-            <div><span>${user.followers}</span><br>Followers</div>
-            <div><span>${user.public_repos}</span><br>Repos</div>
-            <div><span>${user.following}</span><br>Following</div>
-          </div>
+      <section class="card chart-card comparison-chart-card">
+        <div class="section-heading">
+          <div><span class="section-kicker">Language overlap</span><h2>Technology mix</h2><p>Primary repository languages across the analyzed public repositories.</p></div>
         </div>
-      `;
-      container.appendChild(card);
-    }
-  </script>
+        <div class="chart-wrap chart-wrap-wide"><canvas id="compareLanguageChart" role="img" aria-label="Language comparison chart"></canvas></div>
+        <div id="compareChartFallback" class="chart-fallback is-hidden"></div>
+      </section>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div><strong>GitHub Profile Analyzer</strong><p>Comparison scores summarize public profile signals only.</p></div>
+      <div class="footer-meta"><span id="rateLimitLabel">API status: ready</span><a href="index.html">Back to dashboard</a></div>
+    </div>
+  </footer>
+
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
 </body>
 </html>
